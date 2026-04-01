@@ -31,8 +31,8 @@ export default async function RootLayout({
   const showVerificationBanner = !!session?.user && !emailVerifiedAt;
 
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-gray-50 font-[family-name:var(--font-geist-sans)]">
+    <html lang="en" className={`${geistSans.variable} antialiased`}>
+      <body className="bg-gray-50 font-[family-name:var(--font-geist-sans)]">
         <Navbar />
         {showVerificationBanner && <VerificationBanner />}
         <main>{children}</main>
