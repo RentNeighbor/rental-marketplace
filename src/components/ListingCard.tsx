@@ -95,7 +95,7 @@ export default function ListingCard({
             <p className="text-gray-300 text-[10px] mt-1">
               {rentalCount ? `Rented ${rentalCount}x` : ""}
               {rentalCount && viewCount ? " · " : ""}
-              {viewCount ? `${viewCount} views` : ""}
+              {viewCount ? `Viewed ${viewCount}x in 7d` : ""}
             </p>
           )}
         </div>

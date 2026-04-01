@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { listings, users, categories, rentalPhotos, disputes, reviews, rentals, bids, rentalExtensions } from "@/lib/db/schema";
-import { eq, desc, and, or, inArray, sql, count } from "drizzle-orm";
+import { listings, users, categories, rentalPhotos, disputes, reviews, rentals, bids, rentalExtensions, listingViews } from "@/lib/db/schema";
+import { eq, desc, and, or, inArray, sql, count, gte } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
@@ -34,11 +34,19 @@ export default async function ListingPage({
 
   if (!listing) notFound();
 
-  // Increment view count
-  await db
-    .update(listings)
-    .set({ viewCount: sql`${listings.viewCount} + 1` })
-    .where(eq(listings.id, id));
+  // Record view and count views in past 7 days
+  await db.insert(listingViews).values({ listingId: id });
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const [viewCountResult] = await db
+    .select({ value: count() })
+    .from(listingViews)
+    .where(
+      and(
+        eq(listingViews.listingId, id),
+        gte(listingViews.viewedAt, sevenDaysAgo)
+      )
+    );
+  const recentViewCount = viewCountResult?.value ?? 0;
 
   // Count completed/active rentals for this listing
   const [rentalCountResult] = await db
@@ -372,7 +380,7 @@ export default async function ListingPage({
             {rentalCount > 0 && (
               <span>Rented {rentalCount} {rentalCount === 1 ? "time" : "times"}</span>
             )}
-            <span>{listing.viewCount + 1} {listing.viewCount + 1 === 1 ? "view" : "views"}</span>
+            <span>Viewed {recentViewCount} {recentViewCount === 1 ? "time" : "times"} in past 7 days</span>
           </div>
 
           <div className="mt-3 space-y-1 text-sm text-gray-600">

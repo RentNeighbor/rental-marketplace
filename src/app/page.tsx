@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { listings, categories, rentals } from "@/lib/db/schema";
-import { eq, like, desc, asc, and, gte, lte, inArray, or, sql, count } from "drizzle-orm";
+import { listings, categories, rentals, listingViews } from "@/lib/db/schema";
+import { eq, like, desc, asc, and, gte, lte, inArray, or, count } from "drizzle-orm";
 import ListingCard from "@/components/ListingCard";
 import SearchBar from "@/components/SearchBar";
 import FilterPanel from "@/components/FilterPanel";
@@ -117,19 +117,26 @@ export default async function Home({
       securityDeposit: listings.securityDeposit,
       userId: listings.userId,
       condition: listings.condition,
-      viewCount: listings.viewCount,
     })
     .from(listings)
     .where(and(...conditions))
     .orderBy(orderBy);
 
-  // Get rental counts for all listings in one query
+  // Get rental counts and 7-day view counts in two queries
   const rentalCounts = await db
     .select({ listingId: rentals.listingId, value: count() })
     .from(rentals)
     .where(or(eq(rentals.status, "completed"), eq(rentals.status, "active")))
     .groupBy(rentals.listingId);
   const rentalCountMap = new Map(rentalCounts.map((r) => [r.listingId, r.value]));
+
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const viewCounts = await db
+    .select({ listingId: listingViews.listingId, value: count() })
+    .from(listingViews)
+    .where(gte(listingViews.viewedAt, sevenDaysAgo))
+    .groupBy(listingViews.listingId);
+  const viewCountMap = new Map(viewCounts.map((v) => [v.listingId, v.value]));
 
   // Post-query filtering
   let resultsWithDistance = rawListings.map((l) => ({
@@ -311,7 +318,7 @@ export default async function Home({
                       : undefined
                   }
                   rentalCount={rentalCountMap.get(listing.id) ?? 0}
-                  viewCount={listing.viewCount}
+                  viewCount={viewCountMap.get(listing.id) ?? 0}
                 />
               ))}
             </div>

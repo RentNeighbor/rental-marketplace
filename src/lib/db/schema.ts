@@ -326,6 +326,16 @@ export const emailVerificationTokens = pgTable("email_verification_tokens", {
     .$defaultFn(() => new Date()),
 });
 
+export const listingViews = pgTable("listing_views", {
+  id: serial("id").primaryKey(),
+  listingId: text("listing_id")
+    .notNull()
+    .references(() => listings.id),
+  viewedAt: timestamp("viewed_at")
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: text("id").primaryKey(),
   userId: text("user_id")
