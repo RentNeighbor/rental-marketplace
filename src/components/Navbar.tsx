@@ -55,7 +55,8 @@ export default async function Navbar() {
   return (
     <nav className="border-b border-gray-200 bg-white">
       <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold tracking-tight text-green-700">
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight text-green-700">
+          <img src="/logo.svg" alt="" className="h-8 w-8" />
           RentNeighbor
         </Link>
 
