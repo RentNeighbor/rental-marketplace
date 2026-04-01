@@ -9,9 +9,9 @@ export async function POST() {
   }
 
   const headersList = await headers();
-  const host = headersList.get("host") ?? "localhost:3000";
-  const protocol = host.includes("localhost") ? "http" : "https";
-  const baseUrl = `${protocol}://${host}`;
+  const host = headersList.get("host") ?? "";
+  const protocol = headersList.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`;
 
   const verificationSession = await stripe.identity.verificationSessions.create({
     type: "document",

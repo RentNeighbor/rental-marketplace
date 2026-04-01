@@ -601,9 +601,9 @@ export async function initiateRentalCheckout(
   const totalPrice = rentalFee + depositAmount;
 
   const headersList = await headers();
-  const host = headersList.get("host") ?? "localhost:3000";
-  const protocol = host.includes("localhost") ? "http" : "https";
-  const baseUrl = `${protocol}://${host}`;
+  const host = headersList.get("host") ?? "";
+  const protocol = headersList.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`;
 
   const lineItems: {product_data: {name: string}; unit_amount: number; quantity: number}[] = [];
 

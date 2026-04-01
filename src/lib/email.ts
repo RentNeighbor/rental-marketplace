@@ -4,7 +4,7 @@ import { escapeHtml } from "@/lib/validation";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = process.env.RESEND_FROM ?? "RentNeighbor <onboarding@resend.dev>";
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://rental-marketplace-zeta.vercel.app";
 
 function baseTemplate(title: string, body: string, linkUrl?: string) {
   const safeTitle = escapeHtml(title);

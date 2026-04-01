@@ -140,9 +140,13 @@ export async function POST(request: Request) {
     const filename = `${uuidv4()}.${ext}`;
     const buffer = Buffer.from(bytes);
 
-    const url = useS3
-      ? await uploadToS3(buffer, filename, file.type)
-      : await uploadToLocal(buffer, filename);
+    if (!useS3) {
+      return Response.json(
+        { error: "Image storage not configured. S3_BUCKET and S3_ENDPOINT are required." },
+        { status: 500 }
+      );
+    }
+    const url = await uploadToS3(buffer, filename, file.type);
 
     urls.push(url);
   }
