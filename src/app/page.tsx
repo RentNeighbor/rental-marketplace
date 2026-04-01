@@ -305,16 +305,16 @@ export default async function Home({
               ))}
             </div>
           )}
+
+          {totalResults > 0 && (
+            <Pagination
+              totalResults={totalResults}
+              currentPage={safePage}
+              perPage={perPage}
+            />
+          )}
         </div>
       </div>
-
-      {totalResults > 0 && (
-        <Pagination
-          totalResults={totalResults}
-          currentPage={safePage}
-          perPage={perPage}
-        />
-      )}
     </div>
   );
 }

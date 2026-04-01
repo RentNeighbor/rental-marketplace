@@ -1,8 +1,6 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { createPortal } from "react-dom";
-import { useState, useEffect } from "react";
 
 const PER_PAGE_OPTIONS = [10, 20, 50, 100];
 
@@ -19,8 +17,6 @@ export default function Pagination({
 }: PaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
   const totalPages = Math.ceil(totalResults / perPage);
 
   function buildUrl(overrides: Record<string, string>) {
@@ -65,11 +61,8 @@ export default function Pagination({
   const start = (currentPage - 1) * perPage + 1;
   const end = Math.min(currentPage * perPage, totalResults);
 
-  const slot = mounted ? document.getElementById("footer-pagination-slot") : null;
-  if (!slot) return null;
-
-  return createPortal(
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+  return (
+    <div className="flex flex-col items-center gap-4 mt-8">
       {/* Results count + per-page selector */}
       <div className="flex items-center gap-3 text-sm text-gray-500">
         <span>
@@ -140,7 +133,6 @@ export default function Pagination({
           </button>
         </div>
       )}
-    </div>,
-    slot
+    </div>
   );
 }
