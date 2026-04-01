@@ -252,11 +252,11 @@ export default async function Home({
         <SearchBar />
       </div>
 
-      {/* Main layout: sidebar + grid */}
-      <div className="flex gap-8">
+      {/* Main layout: sidebar + grid (stacks on mobile) */}
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Left filter panel */}
-        <aside className="shrink-0" style={{ width: "300px" }}>
-          <div className="sticky top-6">
+        <aside className="shrink-0 w-full lg:w-[300px]">
+          <div className="lg:sticky lg:top-6">
             <FilterPanel categories={allCategories} />
           </div>
         </aside>
