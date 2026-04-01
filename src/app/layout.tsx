@@ -12,8 +12,7 @@ const geistSans = Geist({
 });
 
 export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
+  width: 1280,
 };
 
 export const metadata: Metadata = {
