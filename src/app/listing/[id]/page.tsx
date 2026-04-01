@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { listings, users, categories, rentalPhotos, disputes, reviews, rentals, bids, rentalExtensions, listingViews } from "@/lib/db/schema";
 import { eq, desc, and, or, inArray, sql, count, gte } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
 import { deleteListing, submitRentalPhoto, reportListing, submitDispute, submitReview, startConversation, requestRental, initiateRentalCheckout, approveRental, declineRental, cancelRental, completeRental, placeBid, acceptBid, declineBid, withdrawBid, blockDates, unblockDates, requestRentalExtension, approveRentalExtension, declineRentalExtension } from "@/lib/actions";
@@ -34,8 +35,23 @@ export default async function ListingPage({
 
   if (!listing) notFound();
 
-  // Record view and count views in past 7 days
-  await db.insert(listingViews).values({ listingId: id });
+  // Record view (max once per hour per user/IP per listing)
+  const headersList = await headers();
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const viewerKey = session?.user?.id || `ip:${ip}`;
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
+  const recentView = await db.query.listingViews.findFirst({
+    where: and(
+      eq(listingViews.listingId, id),
+      eq(listingViews.viewerKey, viewerKey),
+      gte(listingViews.viewedAt, oneHourAgo)
+    ),
+  });
+  if (!recentView) {
+    await db.insert(listingViews).values({ listingId: id, viewerKey });
+  }
+
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const [viewCountResult] = await db
     .select({ value: count() })

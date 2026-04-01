@@ -331,6 +331,7 @@ export const listingViews = pgTable("listing_views", {
   listingId: text("listing_id")
     .notNull()
     .references(() => listings.id),
+  viewerKey: text("viewer_key").notNull(),
   viewedAt: timestamp("viewed_at")
     .notNull()
     .$defaultFn(() => new Date()),
