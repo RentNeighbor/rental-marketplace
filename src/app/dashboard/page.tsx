@@ -432,6 +432,14 @@ export default async function DashboardPage() {
                       <span className="text-xs text-gray-400">
                         from {rental.ownerName}
                       </span>
+                      {rental.status === "completed" && (
+                        <Link
+                          href={`/listing/${rental.listingId}`}
+                          className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full hover:bg-green-100 font-medium"
+                        >
+                          Rent Again
+                        </Link>
+                      )}
                     </div>
                     <RentalActions
                       rental={rental}

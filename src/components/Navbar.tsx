@@ -94,6 +94,12 @@ export default async function Navbar() {
                 My Listings
               </Link>
               <Link
+                href="/rental-history"
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Rentals
+              </Link>
+              <Link
                 href="/stats"
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
