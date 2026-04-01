@@ -54,8 +54,7 @@ export default function SearchBar() {
       setLoadingSuggestions(true);
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&addressdetails=1&limit=6&featuretype=city`,
-          { headers: { "User-Agent": "RentNeighbor/1.0" } }
+          `/api/geocode?action=search&q=${encodeURIComponent(value)}`
         );
         const data: LocationSuggestion[] = await res.json();
         setSuggestions(data);
@@ -106,8 +105,7 @@ export default function SearchBar() {
         const { latitude, longitude } = pos.coords;
         try {
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
-            { headers: { "User-Agent": "RentNeighbor/1.0" } }
+            `/api/geocode?action=reverse&lat=${latitude}&lon=${longitude}`
           );
           const data = await res.json();
           const addr = data.address;
