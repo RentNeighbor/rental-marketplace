@@ -45,6 +45,7 @@ export const listings = pgTable("listings", {
   condition: text("condition", {
     enum: ["new", "like_new", "excellent", "good", "fair", "well_worn"],
   }),
+  viewCount: integer("view_count").notNull().default(0),
   status: text("status", { enum: ["active", "paused", "rented", "removed"] })
     .notNull()
     .default("active"),

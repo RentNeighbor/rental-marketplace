@@ -13,6 +13,8 @@ interface ListingCardProps {
   securityDeposit?: number | null;
   distance?: number | null;
   showReportFlag?: boolean;
+  rentalCount?: number;
+  viewCount?: number;
 }
 
 export default function ListingCard({
@@ -26,6 +28,8 @@ export default function ListingCard({
   securityDeposit,
   distance,
   showReportFlag,
+  rentalCount,
+  viewCount,
 }: ListingCardProps) {
   const images = imageUrls ? JSON.parse(imageUrls) : [];
   const price = pricePerDay
@@ -87,6 +91,13 @@ export default function ListingCard({
               <span className="text-blue-500"> &middot; {distance} mi</span>
             )}
           </p>
+          {(!!rentalCount || !!viewCount) && (
+            <p className="text-gray-300 text-[10px] mt-1">
+              {rentalCount ? `Rented ${rentalCount}x` : ""}
+              {rentalCount && viewCount ? " · " : ""}
+              {viewCount ? `${viewCount} views` : ""}
+            </p>
+          )}
         </div>
       </Link>
     </div>

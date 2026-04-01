@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { listings, categories } from "@/lib/db/schema";
-import { eq, like, desc, asc, and, gte, lte, inArray, or } from "drizzle-orm";
+import { listings, categories, rentals } from "@/lib/db/schema";
+import { eq, like, desc, asc, and, gte, lte, inArray, or, sql, count } from "drizzle-orm";
 import ListingCard from "@/components/ListingCard";
 import SearchBar from "@/components/SearchBar";
 import FilterPanel from "@/components/FilterPanel";
@@ -117,10 +117,19 @@ export default async function Home({
       securityDeposit: listings.securityDeposit,
       userId: listings.userId,
       condition: listings.condition,
+      viewCount: listings.viewCount,
     })
     .from(listings)
     .where(and(...conditions))
     .orderBy(orderBy);
+
+  // Get rental counts for all listings in one query
+  const rentalCounts = await db
+    .select({ listingId: rentals.listingId, value: count() })
+    .from(rentals)
+    .where(or(eq(rentals.status, "completed"), eq(rentals.status, "active")))
+    .groupBy(rentals.listingId);
+  const rentalCountMap = new Map(rentalCounts.map((r) => [r.listingId, r.value]));
 
   // Post-query filtering
   let resultsWithDistance = rawListings.map((l) => ({
@@ -301,6 +310,8 @@ export default async function Home({
                       ? categoryMap[listing.categoryId]
                       : undefined
                   }
+                  rentalCount={rentalCountMap.get(listing.id) ?? 0}
+                  viewCount={listing.viewCount}
                 />
               ))}
             </div>

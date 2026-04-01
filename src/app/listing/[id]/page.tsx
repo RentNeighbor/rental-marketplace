@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { listings, users, categories, rentalPhotos, disputes, reviews, rentals, bids, rentalExtensions } from "@/lib/db/schema";
-import { eq, desc, and, or, inArray } from "drizzle-orm";
+import { eq, desc, and, or, inArray, sql, count } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
@@ -33,6 +33,24 @@ export default async function ListingPage({
   });
 
   if (!listing) notFound();
+
+  // Increment view count
+  await db
+    .update(listings)
+    .set({ viewCount: sql`${listings.viewCount} + 1` })
+    .where(eq(listings.id, id));
+
+  // Count completed/active rentals for this listing
+  const [rentalCountResult] = await db
+    .select({ value: count() })
+    .from(rentals)
+    .where(
+      and(
+        eq(rentals.listingId, id),
+        or(eq(rentals.status, "completed"), eq(rentals.status, "active"))
+      )
+    );
+  const rentalCount = rentalCountResult?.value ?? 0;
 
   const { blockedRanges, bookedRanges, allUnavailable } = await getUnavailableDateRanges(id);
 
@@ -349,6 +367,13 @@ export default async function ListingPage({
               ${listing.securityDeposit} security deposit
             </p>
           )}
+
+          <div className="mt-2 flex items-center gap-3 text-xs text-gray-400">
+            {rentalCount > 0 && (
+              <span>Rented {rentalCount} {rentalCount === 1 ? "time" : "times"}</span>
+            )}
+            <span>{listing.viewCount + 1} {listing.viewCount + 1 === 1 ? "view" : "views"}</span>
+          </div>
 
           <div className="mt-3 space-y-1 text-sm text-gray-600">
             <p>
