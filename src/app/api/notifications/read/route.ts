@@ -1,0 +1,41 @@
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { notifications } from "@/lib/db/schema";
+import { eq, and, isNull } from "drizzle-orm";
+
+export async function POST(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json();
+
+  if (body.all) {
+    // Mark all unread notifications as read
+    await db
+      .update(notifications)
+      .set({ readAt: new Date() })
+      .where(
+        and(
+          eq(notifications.userId, session.user.id),
+          isNull(notifications.readAt)
+        )
+      );
+  } else if (body.notificationId) {
+    // Mark single notification as read
+    await db
+      .update(notifications)
+      .set({ readAt: new Date() })
+      .where(
+        and(
+          eq(notifications.id, body.notificationId),
+          eq(notifications.userId, session.user.id)
+        )
+      );
+  } else {
+    return Response.json({ error: "Provide notificationId or all: true" }, { status: 400 });
+  }
+
+  return Response.json({ ok: true });
+}
