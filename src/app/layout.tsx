@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
@@ -10,6 +10,10 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+  width: 1280,
+};
 
 export const metadata: Metadata = {
   title: "RentNeighbor - Rent Anything From Your Neighbors",
