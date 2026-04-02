@@ -288,10 +288,10 @@ export default function TermsPage() {
             You may request access to, correction of, or deletion of your
             personal information by contacting us at{" "}
             <a
-              href="mailto:privacy@rentneighbor.com"
+              href="mailto:privacy@rentneighbors.com"
               className="text-green-700 hover:underline"
             >
-              privacy@rentneighbor.com
+              privacy@rentneighbors.com
             </a>
             . You may update your notification preferences at any time in your
             account settings.
@@ -305,10 +305,10 @@ export default function TermsPage() {
           <p>
             For questions about these Terms or our Privacy Policy, contact us at{" "}
             <a
-              href="mailto:support@rentneighbor.com"
+              href="mailto:support@rentneighbors.com"
               className="text-green-700 hover:underline"
             >
-              support@rentneighbor.com
+              support@rentneighbors.com
             </a>
             .
           </p>

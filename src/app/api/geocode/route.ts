@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
     const res = await fetch(
       `${NOMINATIM_BASE}/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&limit=6&featuretype=city`,
-      { headers: { "User-Agent": "RentNeighbors/1.0 (https://rentneighbor.com)" } }
+      { headers: { "User-Agent": "RentNeighbors/1.0 (https://rentneighbors.com)" } }
     );
     const data = await res.json();
     return Response.json(data);
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     const res = await fetch(
       `${NOMINATIM_BASE}/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`,
-      { headers: { "User-Agent": "RentNeighbors/1.0 (https://rentneighbor.com)" } }
+      { headers: { "User-Agent": "RentNeighbors/1.0 (https://rentneighbors.com)" } }
     );
     const data = await res.json();
     return Response.json(data);

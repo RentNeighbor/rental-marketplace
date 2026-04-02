@@ -365,7 +365,7 @@ export default async function ListingPage({
       ? `$${listing.pricePerWeek}/week`
       : "Contact for price";
 
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://rental-marketplace-zeta.vercel.app";
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://rentneighbors.com";
   const listingImages = safeParseImageUrls(listing.imageUrls);
   const jsonLd = {
     "@context": "https://schema.org",

@@ -155,10 +155,10 @@ export default function FAQPage() {
         <p className="text-sm text-gray-500">
           Still have questions? Message us through the platform or email{" "}
           <a
-            href="mailto:support@rentneighbor.com"
+            href="mailto:support@rentneighbors.com"
             className="text-green-700 hover:underline"
           >
-            support@rentneighbor.com
+            support@rentneighbors.com
           </a>
           .
         </p>
