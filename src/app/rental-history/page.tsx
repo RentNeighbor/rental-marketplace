@@ -1,3 +1,4 @@
+import { safeParseImageUrls } from "@/lib/utils";
 import { db } from "@/lib/db";
 import { rentals, listings, users } from "@/lib/db/schema";
 import { eq, desc, and, or } from "drizzle-orm";
@@ -63,7 +64,7 @@ export default async function RentalHistoryPage() {
 
   function RentalRow({ rental }: { rental: typeof userRentals[0] }) {
     const listing = listingMap[rental.listingId];
-    const images = listing?.imageUrls ? JSON.parse(listing.imageUrls) : [];
+    const images = safeParseImageUrls(listing?.imageUrls);
     const ownerName = ownerMap[rental.ownerId] || "Unknown";
     const days = Math.ceil(
       (rental.endDate.getTime() - rental.startDate.getTime()) / (1000 * 60 * 60 * 24)

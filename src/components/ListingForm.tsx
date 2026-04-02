@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useRef, useEffect, useCallback } from "react";
+import { safeParseImageUrls } from "@/lib/utils";
 
 interface Category {
   id: number;
@@ -36,9 +37,7 @@ export default function ListingForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Parse existing images
-  const existingImages: string[] = defaultValues?.imageUrls
-    ? JSON.parse(defaultValues.imageUrls)
-    : [];
+  const existingImages: string[] = safeParseImageUrls(defaultValues?.imageUrls);
 
   const [uploadedUrls, setUploadedUrls] = useState<string[]>(existingImages);
   const [uploading, setUploading] = useState(false);

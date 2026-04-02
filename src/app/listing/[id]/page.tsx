@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { safeParseImageUrls } from "@/lib/utils";
 import { db } from "@/lib/db";
 import { listings, users, categories, rentalPhotos, disputes, reviews, rentals, bids, rentalExtensions, listingViews } from "@/lib/db/schema";
 import { eq, desc, and, or, inArray, sql, count, gte } from "drizzle-orm";
@@ -19,7 +20,7 @@ export async function generateMetadata({
 
   if (!listing) return { title: "Listing Not Found" };
 
-  const images = listing.imageUrls ? JSON.parse(listing.imageUrls) : [];
+  const images = safeParseImageUrls(listing.imageUrls);
   const price = listing.pricePerDay ? `$${listing.pricePerDay}/day` : "";
   const description = `${price}${price ? " — " : ""}${listing.description.slice(0, 160)}`;
 
@@ -341,7 +342,7 @@ export default async function ListingPage({
     (b) => b.bidderId === session?.user?.id && b.status === "pending"
   );
 
-  const images = listing.imageUrls ? JSON.parse(listing.imageUrls) : [];
+  const images = safeParseImageUrls(listing.imageUrls);
   const isOwner = session?.user?.id === listing.userId;
 
   const currentUser = session?.user?.id
@@ -365,7 +366,7 @@ export default async function ListingPage({
       : "Contact for price";
 
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://rental-marketplace-zeta.vercel.app";
-  const listingImages = listing.imageUrls ? JSON.parse(listing.imageUrls) as string[] : [];
+  const listingImages = safeParseImageUrls(listing.imageUrls);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",

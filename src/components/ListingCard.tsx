@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ReportFlag from "./ReportFlag";
+import { safeParseImageUrls } from "@/lib/utils";
 
 interface ListingCardProps {
   id: string;
@@ -31,7 +32,7 @@ export default function ListingCard({
   rentalCount,
   viewCount,
 }: ListingCardProps) {
-  const images = imageUrls ? JSON.parse(imageUrls) : [];
+  const images = safeParseImageUrls(imageUrls);
   const price = pricePerDay
     ? `$${pricePerDay}/day`
     : pricePerWeek
