@@ -4,3 +4,8 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
+
+html, body {
+  height: auto !important;
+  min-height: 0 !important;
+}
