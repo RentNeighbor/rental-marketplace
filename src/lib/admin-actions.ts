@@ -157,6 +157,33 @@ export async function adminRemoveListing(formData: FormData) {
   revalidatePath("/admin/listings");
 }
 
+export async function adminRestoreListing(formData: FormData) {
+  await requireAdmin();
+
+  const listingId = formData.get("listingId") as string;
+
+  const listing = await db.query.listings.findFirst({
+    where: eq(listings.id, listingId),
+  });
+  if (!listing) throw new Error("Listing not found");
+
+  await db
+    .update(listings)
+    .set({ status: "active", updatedAt: new Date() })
+    .where(eq(listings.id, listingId));
+
+  await createNotification({
+    userId: listing.userId,
+    type: "listing_reported",
+    title: "Listing restored",
+    body: `Your listing "${listing.title}" has been restored by an admin`,
+    linkUrl: `/listing/${listingId}`,
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/listings");
+}
+
 export async function suspendUser(formData: FormData) {
   await requireAdmin();
 

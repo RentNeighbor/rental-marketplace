@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { listings, users } from "@/lib/db/schema";
 import { eq, like, desc } from "drizzle-orm";
 import Link from "next/link";
-import { adminRemoveListing } from "@/lib/admin-actions";
+import { adminRemoveListing, adminRestoreListing } from "@/lib/admin-actions";
 
 const STATUS_TABS = ["all", "active", "paused", "rented", "removed"] as const;
 
@@ -117,11 +117,18 @@ export default async function AdminListings({
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {l.status !== "removed" && (
+                    {l.status !== "removed" ? (
                       <form action={adminRemoveListing}>
                         <input type="hidden" name="listingId" value={l.id} />
                         <button className="rounded-md bg-red-600 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-red-700">
                           Remove
+                        </button>
+                      </form>
+                    ) : (
+                      <form action={adminRestoreListing}>
+                        <input type="hidden" name="listingId" value={l.id} />
+                        <button className="rounded-md bg-green-600 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-green-700">
+                          Restore
                         </button>
                       </form>
                     )}
