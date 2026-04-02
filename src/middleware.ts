@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/lib/auth";
 
-export async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-
-  const email = (token?.email as string | undefined)?.toLowerCase();
+export default auth((req) => {
+  const email = req.auth?.user?.email?.toLowerCase();
   const adminEmails = (process.env.ADMIN_EMAILS ?? "")
     .split(",")
-    .map((e) => e.trim().toLowerCase())
+    .map((e: string) => e.trim().toLowerCase())
     .filter(Boolean);
 
   if (!email) {
@@ -20,7 +17,7 @@ export async function middleware(req: NextRequest) {
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: ["/admin/:path*"],

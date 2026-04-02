@@ -2,9 +2,9 @@
 
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
-import { reports, disputes, listings, users } from "@/lib/db/schema";
+import { reports, disputes, listings, users, listingViews, rentalPhotos, blockedDates, reviews, bids, conversations, messages, rentals, rentalExtensions } from "@/lib/db/schema";
 import { createNotification } from "@/lib/notifications";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function reviewReport(formData: FormData) {
