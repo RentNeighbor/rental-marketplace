@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { listings, users, categories, rentalPhotos, disputes, reviews, rentals, bids, rentalExtensions, listingViews } from "@/lib/db/schema";
 import { eq, desc, and, or, inArray, sql, count, gte } from "drizzle-orm";
@@ -5,6 +6,40 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const listing = await db.query.listings.findFirst({
+    where: eq(listings.id, id),
+  });
+
+  if (!listing) return { title: "Listing Not Found" };
+
+  const images = listing.imageUrls ? JSON.parse(listing.imageUrls) : [];
+  const price = listing.pricePerDay ? `$${listing.pricePerDay}/day` : "";
+  const description = `${price}${price ? " — " : ""}${listing.description.slice(0, 160)}`;
+
+  return {
+    title: listing.title,
+    description,
+    openGraph: {
+      title: `${listing.title} — RentNeighbor`,
+      description,
+      type: "website",
+      images: images.length > 0 ? [{ url: images[0], alt: listing.title }] : undefined,
+    },
+    twitter: {
+      card: images.length > 0 ? "summary_large_image" : "summary",
+      title: listing.title,
+      description,
+      images: images.length > 0 ? [images[0]] : undefined,
+    },
+  };
+}
 import { deleteListing, submitRentalPhoto, reportListing, submitDispute, submitReview, startConversation, requestRental, initiateRentalCheckout, approveRental, declineRental, cancelRental, completeRental, placeBid, acceptBid, declineBid, withdrawBid, blockDates, unblockDates, requestRentalExtension, approveRentalExtension, declineRentalExtension } from "@/lib/actions";
 import { getUnavailableDateRanges } from "@/lib/availability";
 import RentalPhotos from "@/components/RentalPhotos";
@@ -329,7 +364,29 @@ export default async function ListingPage({
       ? `$${listing.pricePerWeek}/week`
       : "Contact for price";
 
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://rental-marketplace-zeta.vercel.app";
+  const listingImages = listing.imageUrls ? JSON.parse(listing.imageUrls) as string[] : [];
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: listing.title,
+    description: listing.description,
+    image: listingImages,
+    offers: {
+      "@type": "Offer",
+      price: listing.pricePerDay ?? undefined,
+      priceCurrency: "USD",
+      availability: listing.status === "active" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    },
+    url: `${BASE_URL}/listing/${listing.id}`,
+  };
+
   return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
     <div className="mx-auto max-w-4xl px-6 py-5">
       <Link
         href="/"
@@ -661,5 +718,6 @@ export default async function ListingPage({
         />
       )}
     </div>
+    </>
   );
 }

@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { db } from "@/lib/db";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Manage your listings and rentals on RentNeighbor.",
+};
 import { listings, categories, rentals, users, bids, rentalExtensions } from "@/lib/db/schema";
 import { eq, desc, and, or, inArray } from "drizzle-orm";
 import { auth } from "@/lib/auth";

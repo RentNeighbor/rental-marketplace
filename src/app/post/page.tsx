@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { db } from "@/lib/db";
+
+export const metadata: Metadata = {
+  title: "Post a Listing",
+  description: "List your items for rent on RentNeighbor.",
+};
 import { categories } from "@/lib/db/schema";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";

@@ -15,10 +15,32 @@ export const viewport: Viewport = {
   width: 1280,
 };
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://rental-marketplace-zeta.vercel.app";
+
 export const metadata: Metadata = {
-  title: "RentNeighbor - Rent Anything From Your Neighbors",
+  title: {
+    default: "RentNeighbor - Rent Anything From Your Neighbors",
+    template: "%s | RentNeighbor",
+  },
   description:
     "The local marketplace for renting tools, gear, electronics, and more from people nearby.",
+  metadataBase: new URL(BASE_URL),
+  openGraph: {
+    type: "website",
+    siteName: "RentNeighbor",
+    title: "RentNeighbor - Rent Anything From Your Neighbors",
+    description:
+      "The local marketplace for renting tools, gear, electronics, and more from people nearby.",
+    url: BASE_URL,
+    images: [{ url: "/logo.svg", width: 512, height: 512, alt: "RentNeighbor" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "RentNeighbor - Rent Anything From Your Neighbors",
+    description:
+      "The local marketplace for renting tools, gear, electronics, and more from people nearby.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default async function RootLayout({
