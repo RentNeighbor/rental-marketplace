@@ -15,6 +15,7 @@ export default async function PostListingPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
+  const emailVerifiedAt = (session.user as Record<string, unknown>).emailVerifiedAt;
   const allCategories = await db.select().from(categories);
 
   async function handleCreate(formData: FormData) {
@@ -31,6 +32,11 @@ export default async function PostListingPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">
         Post an Item for Rent
       </h1>
+      {!emailVerifiedAt && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm rounded-lg px-4 py-3 mb-6">
+          You need to verify your email before posting. Check your inbox for a verification link.
+        </div>
+      )}
       <ListingForm categories={allCategories} action={handleCreate} />
     </div>
   );

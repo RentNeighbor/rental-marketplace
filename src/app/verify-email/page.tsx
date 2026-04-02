@@ -47,7 +47,13 @@ function VerifyEmailContent() {
     setResending(true);
     const res = await fetch("/api/auth/resend-verification", { method: "POST" });
     setResending(false);
-    if (res.ok) setResent(true);
+    if (res.ok) {
+      setResent(true);
+    } else if (res.status === 401) {
+      setError("Please log in first, then resend the verification email from the banner at the top of the page.");
+    } else {
+      setError("Failed to resend. Please try again later.");
+    }
   }
 
   if (status === "verifying") {

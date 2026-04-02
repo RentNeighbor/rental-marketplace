@@ -14,22 +14,29 @@ export default function PayoutSettings({
   const connectStatus = searchParams.get("connect");
   const [loading, setLoading] = useState(false);
   const [dashboardLoading, setDashboardLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function startOnboarding() {
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/stripe/connect", { method: "POST" });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
+      } else {
+        setError("Failed to start payout setup. Please try again.");
+        setLoading(false);
       }
     } catch {
+      setError("Something went wrong. Please try again.");
       setLoading(false);
     }
   }
 
   async function openDashboard() {
     setDashboardLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/stripe/connect/dashboard", {
         method: "POST",
@@ -37,9 +44,11 @@ export default function PayoutSettings({
       const data = await res.json();
       if (data.url) {
         window.open(data.url, "_blank");
+      } else {
+        setError("Could not open dashboard. Please try again.");
       }
     } catch {
-      // ignore
+      setError("Something went wrong. Please try again.");
     } finally {
       setDashboardLoading(false);
     }
@@ -52,6 +61,12 @@ export default function PayoutSettings({
         Connect your bank account to receive earnings when rentals complete.
         RentNeighbor takes a 10% platform fee.
       </p>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-3 py-2 mb-3">
+          {error}
+        </div>
+      )}
 
       {connectStatus === "return" && !connectOnboarded && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs rounded-lg px-3 py-2 mb-3">
