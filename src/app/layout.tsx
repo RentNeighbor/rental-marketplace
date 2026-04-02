@@ -15,7 +15,7 @@ export const viewport: Viewport = {
   width: 1280,
 };
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://rental-marketplace-zeta.vercel.app";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://rentneighbors.com";
 
 export const metadata: Metadata = {
   title: {
