@@ -4,7 +4,7 @@ export const users = pgTable("users", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
+  passwordHash: text("password_hash"),
   location: text("location"),
   stripeIdentityVerified: boolean("stripe_identity_verified")
     .notNull()
