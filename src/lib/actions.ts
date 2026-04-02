@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { listings, rentalPhotos, reports, disputes, reviews, conversations, messages, rentals, bids, notificationPreferences, blockedDates, users, rentalExtensions } from "@/lib/db/schema";
+import { listings, rentalPhotos, reports, disputes, reviews, conversations, messages, rentals, bids, notificationPreferences, blockedDates, users, rentalExtensions, listingViews } from "@/lib/db/schema";
 import { createNotification } from "@/lib/notifications";
 import { getUnavailableDateRanges, rangesOverlap } from "@/lib/availability";
 import { eq, and, or, inArray } from "drizzle-orm";
@@ -141,7 +141,37 @@ export async function deleteListing(formData: FormData) {
   });
   if (!listing) throw new Error("Not found or unauthorized");
 
-  // FTS5 is synced automatically via SQLite trigger
+  // Delete related records to satisfy foreign key constraints
+  await db.delete(listingViews).where(eq(listingViews.listingId, id));
+  await db.delete(rentalPhotos).where(eq(rentalPhotos.listingId, id));
+  await db.delete(blockedDates).where(eq(blockedDates.listingId, id));
+  await db.delete(reports).where(eq(reports.listingId, id));
+  await db.delete(disputes).where(eq(disputes.listingId, id));
+  await db.delete(reviews).where(eq(reviews.listingId, id));
+
+  // Delete bids
+  await db.delete(bids).where(eq(bids.listingId, id));
+
+  // Delete messages and conversations
+  const listingConversations = await db.query.conversations.findMany({
+    where: eq(conversations.listingId, id),
+  });
+  const convoIds = listingConversations.map((c) => c.id);
+  if (convoIds.length > 0) {
+    await db.delete(messages).where(inArray(messages.conversationId, convoIds));
+    await db.delete(conversations).where(eq(conversations.listingId, id));
+  }
+
+  // Delete rental extensions then rentals
+  const listingRentals = await db.query.rentals.findMany({
+    where: eq(rentals.listingId, id),
+  });
+  const rentalIds = listingRentals.map((r) => r.id);
+  if (rentalIds.length > 0) {
+    await db.delete(rentalExtensions).where(inArray(rentalExtensions.rentalId, rentalIds));
+  }
+  await db.delete(rentals).where(eq(rentals.listingId, id));
+
   await db.delete(listings).where(eq(listings.id, id));
 
   revalidatePath("/");
