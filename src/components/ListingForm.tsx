@@ -62,6 +62,44 @@ export default function ListingForm({
   const [loadingSuggestion, setLoadingSuggestion] = useState(false);
   const suggestionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Location autocomplete
+  const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const locationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const locationWrapperRef = useRef<HTMLDivElement>(null);
+
+  function fetchLocationSuggestions(query: string) {
+    if (locationTimeout.current) clearTimeout(locationTimeout.current);
+    if (query.length < 2) {
+      setLocationSuggestions([]);
+      setShowLocationDropdown(false);
+      return;
+    }
+    locationTimeout.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (data.results) {
+          const names = data.results.map((r: { display_name: string }) => r.display_name);
+          setLocationSuggestions(names);
+          setShowLocationDropdown(names.length > 0);
+        }
+      } catch {
+        setLocationSuggestions([]);
+      }
+    }, 300);
+  }
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (locationWrapperRef.current && !locationWrapperRef.current.contains(e.target as Node)) {
+        setShowLocationDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const fetchSuggestion = useCallback(
     (catId: string, cond: string, loc: string) => {
       if (!catId && !cond) {
@@ -281,7 +319,7 @@ export default function ListingForm({
         </div>
       </div>
 
-      <div>
+      <div ref={locationWrapperRef} className="relative">
         <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
           Location
         </label>
@@ -290,12 +328,34 @@ export default function ListingForm({
           name="location"
           type="text"
           required
-          defaultValue={defaultValues?.location}
-          onChange={(e) => setLocationValue(e.target.value)}
-          onBlur={(e) => setLocationValue(e.target.value)}
+          value={locationValue}
+          onChange={(e) => {
+            setLocationValue(e.target.value);
+            fetchLocationSuggestions(e.target.value);
+          }}
+          onFocus={() => {
+            if (locationSuggestions.length > 0) setShowLocationDropdown(true);
+          }}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          placeholder="e.g., Brooklyn, NY"
+          placeholder="Start typing a city or neighborhood..."
+          autoComplete="off"
         />
+        {showLocationDropdown && locationSuggestions.length > 0 && (
+          <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+            {locationSuggestions.map((s, i) => (
+              <li
+                key={i}
+                onClick={() => {
+                  setLocationValue(s);
+                  setShowLocationDropdown(false);
+                }}
+                className="px-3 py-2 text-sm text-gray-700 hover:bg-green-50 cursor-pointer"
+              >
+                {s}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div>
