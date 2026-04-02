@@ -3,8 +3,15 @@ import { hash, compare } from "bcryptjs";
 import { db } from "@/lib/db";
 import { users, passwordResetTokens } from "@/lib/db/schema";
 import { eq, and, gt } from "drizzle-orm";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const { success } = rateLimit(`reset:${ip}`, { limit: 5, windowMs: 15 * 60 * 1000 });
+  if (!success) {
+    return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
+  }
+
   const { email, token, password } = await request.json();
 
   if (!email || !token || !password) {

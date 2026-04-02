@@ -6,9 +6,17 @@ import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { sendEmail } from "@/lib/email";
 import { auth } from "@/lib/auth";
+import { rateLimit } from "@/lib/rate-limit";
 
-export async function POST() {
+export async function POST(request: Request) {
   const session = await auth();
+
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const key = session?.user?.id || ip;
+  const { success } = rateLimit(`resend:${key}`, { limit: 3, windowMs: 15 * 60 * 1000 });
+  if (!success) {
+    return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
+  }
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
