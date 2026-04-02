@@ -19,24 +19,24 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://rentneighbors.com"
 
 export const metadata: Metadata = {
   title: {
-    default: "RentNeighbor - Rent Anything From Your Neighbors",
-    template: "%s | RentNeighbor",
+    default: "RentNeighbors - Rent Anything From Your Neighbors",
+    template: "%s | RentNeighbors",
   },
   description:
     "The local marketplace for renting tools, gear, electronics, and more from people nearby.",
   metadataBase: new URL(BASE_URL),
   openGraph: {
     type: "website",
-    siteName: "RentNeighbor",
-    title: "RentNeighbor - Rent Anything From Your Neighbors",
+    siteName: "RentNeighbors",
+    title: "RentNeighbors - Rent Anything From Your Neighbors",
     description:
       "The local marketplace for renting tools, gear, electronics, and more from people nearby.",
     url: BASE_URL,
-    images: [{ url: "/logo.svg", width: 512, height: 512, alt: "RentNeighbor" }],
+    images: [{ url: "/logo.svg", width: 512, height: 512, alt: "RentNeighbors" }],
   },
   twitter: {
     card: "summary",
-    title: "RentNeighbor - Rent Anything From Your Neighbors",
+    title: "RentNeighbors - Rent Anything From Your Neighbors",
     description:
       "The local marketplace for renting tools, gear, electronics, and more from people nearby.",
   },
@@ -68,7 +68,7 @@ export default async function RootLayout({
                 Terms &amp; Privacy
               </Link>
               <p className="text-xs text-gray-400 whitespace-nowrap">
-                RentNeighbor &copy; {new Date().getFullYear()}
+                RentNeighbors &copy; {new Date().getFullYear()}
               </p>
             </div>
           </div>

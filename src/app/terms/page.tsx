@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — RentNeighbor",
-  description: "Terms of Service and Privacy Policy for RentNeighbor.",
+  title: "Terms of Service — RentNeighbors",
+  description: "Terms of Service and Privacy Policy for RentNeighbors.",
 };
 
 export default function TermsPage() {
@@ -19,7 +19,7 @@ export default function TermsPage() {
             1. Acceptance of Terms
           </h2>
           <p>
-            By accessing or using RentNeighbor (&quot;the Platform&quot;), you agree to be
+            By accessing or using RentNeighbors (&quot;the Platform&quot;), you agree to be
             bound by these Terms of Service (&quot;Terms&quot;). If you do not agree to
             these Terms, do not use the Platform. We may update these Terms from
             time to time, and continued use of the Platform after changes
@@ -32,9 +32,9 @@ export default function TermsPage() {
             2. Description of Service
           </h2>
           <p>
-            RentNeighbor is a peer-to-peer rental marketplace that connects
+            RentNeighbors is a peer-to-peer rental marketplace that connects
             individuals who want to rent out personal items (&quot;Owners&quot;) with
-            individuals who want to rent those items (&quot;Renters&quot;). RentNeighbor
+            individuals who want to rent those items (&quot;Renters&quot;). RentNeighbors
             provides the platform and payment processing infrastructure but is
             not a party to any rental agreement between Owners and Renters.
           </p>
@@ -136,7 +136,7 @@ export default function TermsPage() {
             direct resolution is not possible, either party may file a dispute
             through the Platform. We review disputes based on available evidence
             including condition photos, messages, and transaction records.
-            RentNeighbor&apos;s dispute resolution is provided as a courtesy and our
+            RentNeighbors&apos;s dispute resolution is provided as a courtesy and our
             decisions are not legally binding arbitration.
           </p>
         </section>
@@ -147,7 +147,7 @@ export default function TermsPage() {
           </h2>
           <p>
             You retain ownership of content you post (photos, descriptions,
-            reviews). By posting content, you grant RentNeighbor a
+            reviews). By posting content, you grant RentNeighbors a
             non-exclusive, worldwide, royalty-free license to use, display, and
             distribute that content in connection with the Platform&apos;s operation.
             You represent that you have the right to post all content you
@@ -173,7 +173,7 @@ export default function TermsPage() {
             11. Limitation of Liability
           </h2>
           <p>
-            RentNeighbor is a marketplace platform and does not own, inspect, or
+            RentNeighbors is a marketplace platform and does not own, inspect, or
             guarantee any items listed. We are not liable for the condition,
             safety, legality, or quality of listed items, the accuracy of
             listings or user content, any damage, loss, or injury arising from
@@ -187,7 +187,7 @@ export default function TermsPage() {
             12. Indemnification
           </h2>
           <p>
-            You agree to indemnify and hold harmless RentNeighbor, its officers,
+            You agree to indemnify and hold harmless RentNeighbors, its officers,
             employees, and affiliates from any claims, damages, losses, or
             expenses arising from your use of the Platform, violation of these
             Terms, or your rental transactions with other users.

@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Dashboard",
-  description: "Manage your listings and rentals on RentNeighbor.",
+  description: "Manage your listings and rentals on RentNeighbors.",
 };
 import { listings, categories, rentals, users, bids, rentalExtensions } from "@/lib/db/schema";
 import { eq, desc, and, or, inArray } from "drizzle-orm";

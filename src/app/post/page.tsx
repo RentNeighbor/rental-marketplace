@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Post a Listing",
-  description: "List your items for rent on RentNeighbor.",
+  description: "List your items for rent on RentNeighbors.",
 };
 import { categories } from "@/lib/db/schema";
 import { auth } from "@/lib/auth";

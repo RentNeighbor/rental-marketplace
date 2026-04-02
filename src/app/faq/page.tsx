@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "FAQ — RentNeighbor",
-  description: "Frequently asked questions about renting and listing items on RentNeighbor.",
+  title: "FAQ — RentNeighbors",
+  description: "Frequently asked questions about renting and listing items on RentNeighbors.",
 };
 
 const faqs = [
@@ -10,15 +10,15 @@ const faqs = [
     section: "Getting Started",
     questions: [
       {
-        q: "What is RentNeighbor?",
-        a: "RentNeighbor is a hyperlocal peer-to-peer rental marketplace. It connects neighbors who own things they rarely use with people nearby who need them — tools, camping gear, party supplies, electronics, sporting equipment, and more.",
+        q: "What is RentNeighbors?",
+        a: "RentNeighbors is a hyperlocal peer-to-peer rental marketplace. It connects neighbors who own things they rarely use with people nearby who need them — tools, camping gear, party supplies, electronics, sporting equipment, and more.",
       },
       {
         q: "How does it work?",
         a: "Owners list items with photos, pricing, and availability. Renters browse, search, and book items nearby. You meet in person to exchange the item. Payments are handled securely through Stripe.",
       },
       {
-        q: "Is RentNeighbor free to use?",
+        q: "Is RentNeighbors free to use?",
         a: "Creating an account and browsing listings is free. When a rental transaction occurs, a 10% platform fee is applied to the rental price. Owners receive 90% of the rental fee.",
       },
       {
@@ -128,7 +128,7 @@ export default function FAQPage() {
         Frequently Asked Questions
       </h1>
       <p className="text-sm text-gray-500 mb-8">
-        Everything you need to know about renting and listing on RentNeighbor.
+        Everything you need to know about renting and listing on RentNeighbors.
       </p>
 
       <div className="space-y-10">

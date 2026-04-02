@@ -86,7 +86,7 @@ export async function POST(request: Request) {
   await sendEmail({
     to: email,
     subject: "Verify your email",
-    body: `Hi ${name}, welcome to RentNeighbor! Please verify your email address to start posting listings and booking rentals.`,
+    body: `Hi ${name}, welcome to RentNeighbors! Please verify your email address to start posting listings and booking rentals.`,
     linkUrl: verifyUrl,
   });
 

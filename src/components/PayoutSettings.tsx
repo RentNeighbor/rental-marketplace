@@ -59,7 +59,7 @@ export default function PayoutSettings({
       <h2 className="text-sm font-semibold text-gray-800 mb-1">Payouts</h2>
       <p className="text-xs text-gray-400 mb-4">
         Connect your bank account to receive earnings when rentals complete.
-        RentNeighbor takes a 10% platform fee.
+        RentNeighbors takes a 10% platform fee.
       </p>
 
       {error && (

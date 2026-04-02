@@ -28,7 +28,7 @@ export async function generateMetadata({
     title: listing.title,
     description,
     openGraph: {
-      title: `${listing.title} — RentNeighbor`,
+      title: `${listing.title} — RentNeighbors`,
       description,
       type: "website",
       images: images.length > 0 ? [{ url: images[0], alt: listing.title }] : undefined,

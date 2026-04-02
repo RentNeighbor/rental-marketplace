@@ -3,14 +3,14 @@ import { escapeHtml } from "@/lib/validation";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = process.env.RESEND_FROM ?? "RentNeighbor <onboarding@resend.dev>";
+const FROM = process.env.RESEND_FROM ?? "RentNeighbors <noreply@rentneighbors.com>";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://rentneighbors.com";
 
 function baseTemplate(title: string, body: string, linkUrl?: string) {
   const safeTitle = escapeHtml(title);
   const safeBody = escapeHtml(body);
   const ctaButton = linkUrl
-    ? `<a href="${escapeHtml(`${BASE_URL}${linkUrl}`)}" style="display:inline-block;margin-top:20px;padding:12px 24px;background:#16a34a;color:#fff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">View on RentNeighbor</a>`
+    ? `<a href="${escapeHtml(`${BASE_URL}${linkUrl}`)}" style="display:inline-block;margin-top:20px;padding:12px 24px;background:#16a34a;color:#fff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">View on RentNeighbors</a>`
     : "";
 
   return `
@@ -24,7 +24,7 @@ function baseTemplate(title: string, body: string, linkUrl?: string) {
         <!-- Header -->
         <tr>
           <td style="background:#16a34a;padding:20px 32px;">
-            <span style="color:#fff;font-size:20px;font-weight:700;letter-spacing:-0.3px;">RentNeighbor</span>
+            <span style="color:#fff;font-size:20px;font-weight:700;letter-spacing:-0.3px;">RentNeighbors</span>
           </td>
         </tr>
         <!-- Body -->
@@ -39,7 +39,7 @@ function baseTemplate(title: string, body: string, linkUrl?: string) {
         <tr>
           <td style="padding:20px 32px;border-top:1px solid #f3f4f6;">
             <p style="margin:0;font-size:12px;color:#9ca3af;">
-              You're receiving this because you enabled email notifications on RentNeighbor.
+              You're receiving this because you enabled email notifications on RentNeighbors.
               You can turn these off in your <a href="${BASE_URL}/settings" style="color:#16a34a;">notification settings</a>.
             </p>
           </td>
@@ -70,7 +70,7 @@ export async function sendEmail({
   await resend.emails.send({
     from: FROM,
     to,
-    subject: `${subject} — RentNeighbor`,
+    subject: `${subject} — RentNeighbors`,
     html: baseTemplate(subject, body, linkUrl),
   });
 }

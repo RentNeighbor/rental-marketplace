@@ -9,7 +9,7 @@ export async function geocode(
   try {
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`;
     const res = await fetch(url, {
-      headers: { "User-Agent": "RentNeighbor/1.0" },
+      headers: { "User-Agent": "RentNeighbors/1.0" },
     });
 
     if (!res.ok) {
