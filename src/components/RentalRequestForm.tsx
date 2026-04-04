@@ -159,13 +159,37 @@ export default function RentalRequestForm({
         )}
 
         {pricePreview && !dateConflict && (
-          <div className="bg-white rounded-md border border-blue-100 p-3">
+          <div className="bg-white rounded-md border border-blue-100 p-3 space-y-1">
             <p className="text-sm font-medium text-gray-900">{pricePreview}</p>
-            {securityDeposit && (
-              <p className="text-xs text-amber-600 mt-1">
-                + ${securityDeposit} security deposit
-              </p>
-            )}
+            {(() => {
+              if (!startDate || !endDate) return null;
+              const start = new Date(startDate);
+              const end = new Date(endDate);
+              const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+              if (days <= 0) return null;
+              let rentalFee = 0;
+              if (pricePerDay) {
+                rentalFee = pricePerDay * days;
+              } else if (pricePerWeek) {
+                rentalFee = pricePerWeek * Math.ceil(days / 7);
+              }
+              const platformFee = Math.round(rentalFee * 0.10 * 100) / 100;
+              const totalWithDeposit = rentalFee + (securityDeposit ?? 0);
+              return (
+                <>
+                  <div className="text-xs text-gray-500 border-t border-gray-100 pt-1 mt-1 space-y-0.5">
+                    <p>Rental fee: ${rentalFee.toFixed(2)}</p>
+                    <p>Platform fee (10%): ${platformFee.toFixed(2)}</p>
+                    <p>Owner receives: ${(rentalFee - platformFee).toFixed(2)}</p>
+                  </div>
+                  {securityDeposit ? (
+                    <p className="text-xs text-amber-600">
+                      + ${securityDeposit} refundable deposit &middot; Total: ${totalWithDeposit.toFixed(2)}
+                    </p>
+                  ) : null}
+                </>
+              );
+            })()}
           </div>
         )}
 

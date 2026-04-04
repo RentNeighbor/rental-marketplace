@@ -437,6 +437,11 @@ export default async function ListingPage({
           </div>
 
           <p className="text-xl font-semibold text-green-700 mt-1">{price}</p>
+          {listing.pricePerDay && (
+            <p className="text-xs text-gray-400 mt-0.5">
+              You pay ${listing.pricePerDay.toFixed(2)}/day &middot; Owner receives ${(listing.pricePerDay * 0.9).toFixed(2)}/day
+            </p>
+          )}
 
           {listing.pricePerDay && listing.pricePerWeek && (
             <p className="text-sm text-gray-500">
@@ -446,7 +451,7 @@ export default async function ListingPage({
 
           {listing.securityDeposit && (
             <p className="mt-1 text-sm text-amber-700">
-              ${listing.securityDeposit} security deposit
+              ${listing.securityDeposit} refundable security deposit
             </p>
           )}
 

@@ -16,6 +16,8 @@ interface ListingCardProps {
   showReportFlag?: boolean;
   rentalCount?: number;
   viewCount?: number;
+  ownerName?: string;
+  ownerRating?: number | null;
 }
 
 export default function ListingCard({
@@ -31,6 +33,8 @@ export default function ListingCard({
   showReportFlag,
   rentalCount,
   viewCount,
+  ownerName,
+  ownerRating,
 }: ListingCardProps) {
   const images = safeParseImageUrls(imageUrls);
   const price = pricePerDay
@@ -84,6 +88,14 @@ export default function ListingCard({
           {securityDeposit && (
             <p className="text-amber-700 text-[11px] mt-0.5">
               ${securityDeposit} deposit
+            </p>
+          )}
+          {ownerName && (
+            <p className="text-gray-500 text-[11px] mt-1 truncate">
+              {ownerName}
+              {ownerRating != null && (
+                <span className="text-yellow-600 ml-1">★ {ownerRating}</span>
+              )}
             </p>
           )}
           <p className="text-gray-400 text-xs mt-1 truncate">

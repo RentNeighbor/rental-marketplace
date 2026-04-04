@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { listings, categories, rentals, listingViews } from "@/lib/db/schema";
-import { eq, like, desc, asc, and, gte, lte, inArray, or, count } from "drizzle-orm";
+import { listings, categories, rentals, listingViews, users, reviews } from "@/lib/db/schema";
+import { eq, like, desc, asc, and, gte, lte, inArray, or, count, avg, sql } from "drizzle-orm";
 import ListingCard from "@/components/ListingCard";
 import SearchBar from "@/components/SearchBar";
 import FilterPanel from "@/components/FilterPanel";
@@ -137,6 +137,28 @@ export default async function Home({
     .where(gte(listingViews.viewedAt, sevenDaysAgo))
     .groupBy(listingViews.listingId);
   const viewCountMap = new Map(viewCounts.map((v) => [v.listingId, v.value]));
+
+  // Get owner names and average ratings (as reviewee)
+  const ownerIds = [...new Set(rawListings.map((l) => l.userId))];
+  const ownerDataMap = new Map<string, { name: string; avgRating: number | null }>();
+  if (ownerIds.length > 0) {
+    const ownerNames = await db
+      .select({ id: users.id, name: users.name })
+      .from(users)
+      .where(inArray(users.id, ownerIds));
+    const ownerRatings = await db
+      .select({
+        revieweeId: reviews.revieweeId,
+        avgRating: sql<number>`round(avg(${reviews.rating})::numeric, 1)`,
+      })
+      .from(reviews)
+      .where(inArray(reviews.revieweeId, ownerIds))
+      .groupBy(reviews.revieweeId);
+    const ratingMap = new Map(ownerRatings.map((r) => [r.revieweeId, r.avgRating]));
+    for (const o of ownerNames) {
+      ownerDataMap.set(o.id, { name: o.name, avgRating: ratingMap.get(o.id) ?? null });
+    }
+  }
 
   // Post-query filtering
   let resultsWithDistance = rawListings.map((l) => ({
@@ -319,6 +341,8 @@ export default async function Home({
                   }
                   rentalCount={rentalCountMap.get(listing.id) ?? 0}
                   viewCount={viewCountMap.get(listing.id) ?? 0}
+                  ownerName={ownerDataMap.get(listing.userId)?.name}
+                  ownerRating={ownerDataMap.get(listing.userId)?.avgRating}
                 />
               ))}
             </div>
