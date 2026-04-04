@@ -68,7 +68,7 @@ export default async function AdminReports({
         <div className="space-y-3">
           {allReports.map((r) => (
             <div key={r.id} className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
                 <div className="min-w-0">
                   <Link
                     href={`/listing/${r.listingId}`}
@@ -77,7 +77,7 @@ export default async function AdminReports({
                     {r.listingTitle ?? "Deleted listing"}
                   </Link>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    Reported by {r.reporterName} ({r.reporterEmail}) · {r.createdAt.toLocaleDateString()}
+                    Reported by {r.reporterName} · {r.createdAt.toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -93,7 +93,7 @@ export default async function AdminReports({
                 <p className="text-xs text-gray-500 mb-3 line-clamp-2">{r.details}</p>
               )}
               {r.status === "pending" && (
-                <div className="flex gap-1.5">
+                <div className="flex flex-wrap gap-1.5">
                   <form action={reviewReport}>
                     <input type="hidden" name="reportId" value={r.id} />
                     <button className="rounded-md bg-green-600 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-green-700">

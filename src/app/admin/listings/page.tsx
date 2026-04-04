@@ -82,62 +82,105 @@ export default async function AdminListings({
       {allListings.length === 0 ? (
         <p className="text-sm text-gray-400">No listings found</p>
       ) : (
-        <div className="border border-gray-200 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 text-left text-xs text-gray-500">
-                <th className="px-4 py-3 font-medium">Title</th>
-                <th className="px-4 py-3 font-medium">Owner</th>
-                <th className="px-4 py-3 font-medium">Price</th>
-                <th className="px-4 py-3 font-medium">Location</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {allListings.map((l) => (
-                <tr key={l.id} className={l.status === "removed" ? "bg-red-50/50" : ""}>
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/listing/${l.id}`}
-                      className="font-medium text-gray-900 hover:text-green-600"
-                    >
-                      {l.title}
-                    </Link>
-                    <p className="text-[10px] text-gray-400">{l.createdAt.toLocaleDateString()}</p>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-600">{l.ownerName}</td>
-                  <td className="px-4 py-3 text-xs text-gray-600">
-                    {l.pricePerDay ? `$${l.pricePerDay}/day` : l.pricePerWeek ? `$${l.pricePerWeek}/wk` : "—"}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500 max-w-32 truncate">{l.location}</td>
-                  <td className="px-4 py-3">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${statusColors[l.status]}`}>
-                      {l.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {l.status !== "removed" ? (
-                      <form action={adminRemoveListing}>
-                        <input type="hidden" name="listingId" value={l.id} />
-                        <button className="rounded-md bg-red-600 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-red-700">
-                          Remove
-                        </button>
-                      </form>
-                    ) : (
-                      <form action={adminRestoreListing}>
-                        <input type="hidden" name="listingId" value={l.id} />
-                        <button className="rounded-md bg-green-600 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-green-700">
-                          Restore
-                        </button>
-                      </form>
-                    )}
-                  </td>
+        <>
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {allListings.map((l) => (
+              <div key={l.id} className={`border border-gray-200 rounded-lg p-3 ${l.status === "removed" ? "bg-red-50/50" : "bg-white"}`}>
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <Link
+                    href={`/listing/${l.id}`}
+                    className="font-medium text-gray-900 hover:text-green-600 text-sm truncate"
+                  >
+                    {l.title}
+                  </Link>
+                  <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full ${statusColors[l.status]}`}>
+                    {l.status}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
+                  <span>{l.ownerName}</span>
+                  <span>{l.pricePerDay ? `$${l.pricePerDay}/day` : l.pricePerWeek ? `$${l.pricePerWeek}/wk` : "—"}</span>
+                  <span className="truncate max-w-[150px]">{l.location}</span>
+                  <span>{l.createdAt.toLocaleDateString()}</span>
+                </div>
+                {l.status !== "removed" ? (
+                  <form action={adminRemoveListing}>
+                    <input type="hidden" name="listingId" value={l.id} />
+                    <button className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
+                      Remove
+                    </button>
+                  </form>
+                ) : (
+                  <form action={adminRestoreListing}>
+                    <input type="hidden" name="listingId" value={l.id} />
+                    <button className="rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700">
+                      Restore
+                    </button>
+                  </form>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block border border-gray-200 rounded-xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 text-left text-xs text-gray-500">
+                  <th className="px-4 py-3 font-medium">Title</th>
+                  <th className="px-4 py-3 font-medium">Owner</th>
+                  <th className="px-4 py-3 font-medium">Price</th>
+                  <th className="px-4 py-3 font-medium">Location</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {allListings.map((l) => (
+                  <tr key={l.id} className={l.status === "removed" ? "bg-red-50/50" : ""}>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/listing/${l.id}`}
+                        className="font-medium text-gray-900 hover:text-green-600"
+                      >
+                        {l.title}
+                      </Link>
+                      <p className="text-[10px] text-gray-400">{l.createdAt.toLocaleDateString()}</p>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-600">{l.ownerName}</td>
+                    <td className="px-4 py-3 text-xs text-gray-600">
+                      {l.pricePerDay ? `$${l.pricePerDay}/day` : l.pricePerWeek ? `$${l.pricePerWeek}/wk` : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-500 max-w-32 truncate">{l.location}</td>
+                    <td className="px-4 py-3">
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${statusColors[l.status]}`}>
+                        {l.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {l.status !== "removed" ? (
+                        <form action={adminRemoveListing}>
+                          <input type="hidden" name="listingId" value={l.id} />
+                          <button className="rounded-md bg-red-600 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-red-700">
+                            Remove
+                          </button>
+                        </form>
+                      ) : (
+                        <form action={adminRestoreListing}>
+                          <input type="hidden" name="listingId" value={l.id} />
+                          <button className="rounded-md bg-green-600 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-green-700">
+                            Restore
+                          </button>
+                        </form>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

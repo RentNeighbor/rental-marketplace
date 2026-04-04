@@ -17,12 +17,12 @@ export default function AdminLayout({
     <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="text-2xl font-bold text-gray-900 mb-1">Admin Dashboard</h1>
       <p className="text-sm text-gray-500 mb-6">Manage reports, disputes, users, and listings</p>
-      <nav className="flex gap-1 border-b border-gray-200 mb-8">
+      <nav className="flex gap-1 border-b border-gray-200 mb-8 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
         {tabs.map((tab) => (
           <Link
             key={tab.href}
             href={tab.href}
-            className="px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-t-md -mb-px border-b-2 border-transparent hover:border-green-600 transition-colors"
+            className="px-3 md:px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-t-md -mb-px border-b-2 border-transparent hover:border-green-600 transition-colors whitespace-nowrap"
           >
             {tab.label}
           </Link>

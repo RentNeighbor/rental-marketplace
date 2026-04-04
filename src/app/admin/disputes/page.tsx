@@ -68,7 +68,7 @@ export default async function AdminDisputes({
         <div className="space-y-3">
           {allDisputes.map((d) => (
             <div key={d.id} className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
                 <div className="min-w-0">
                   <Link
                     href={`/listing/${d.listingId}`}
@@ -77,7 +77,7 @@ export default async function AdminDisputes({
                     {d.listingTitle ?? "Deleted listing"}
                   </Link>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    Filed by {d.filerName} ({d.filerEmail}) · {d.createdAt.toLocaleDateString()}
+                    Filed by {d.filerName} · {d.createdAt.toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
