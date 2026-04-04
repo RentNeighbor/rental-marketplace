@@ -125,7 +125,6 @@ export default async function MessagesPage() {
                     <Link
                       href={`/listing/${conv.listingId}`}
                       className="text-green-700 hover:underline"
-                      onClick={(e) => e.stopPropagation()}
                     >
                       {conv.listingTitle}
                     </Link>
