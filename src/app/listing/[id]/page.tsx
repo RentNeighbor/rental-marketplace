@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
+import { stripe } from "@/lib/stripe";
 
 export async function generateMetadata({
   params,
@@ -348,7 +349,28 @@ export default async function ListingPage({
   const currentUser = session?.user?.id
     ? await db.query.users.findFirst({ where: eq(users.id, session.user.id) })
     : null;
-  const identityVerified = currentUser?.stripeIdentityVerified ?? false;
+
+  // Check identity verification — if DB says not verified, check Stripe directly as fallback
+  let identityVerified = currentUser?.stripeIdentityVerified ?? false;
+  if (!identityVerified && currentUser) {
+    try {
+      const sessions = await stripe.identity.verificationSessions.list({
+        limit: 1,
+      });
+      const verified = sessions.data.find(
+        (s) => s.metadata?.userId === currentUser.id && s.status === "verified"
+      );
+      if (verified) {
+        await db
+          .update(users)
+          .set({ stripeIdentityVerified: true })
+          .where(eq(users.id, currentUser.id));
+        identityVerified = true;
+      }
+    } catch {
+      // Stripe call failed — keep DB value
+    }
+  }
 
   const conditionLabel = (c: string) => ({
     new: "New",
