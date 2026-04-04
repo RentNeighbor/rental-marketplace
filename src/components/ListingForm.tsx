@@ -63,9 +63,24 @@ export default function ListingForm({
   const [loadingSuggestion, setLoadingSuggestion] = useState(false);
   const suggestionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Location autocomplete
-  const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
+  // Location autocomplete (matches homepage SearchBar)
+  interface LocationSuggestion {
+    place_id: number;
+    display_name: string;
+    name: string;
+    address: {
+      city?: string;
+      town?: string;
+      village?: string;
+      state?: string;
+      country?: string;
+      county?: string;
+    };
+  }
+  const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [locating, setLocating] = useState(false);
   const locationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const locationWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -77,18 +92,62 @@ export default function ListingForm({
       return;
     }
     locationTimeout.current = setTimeout(async () => {
+      setLoadingLocation(true);
       try {
-        const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        if (data.results) {
-          const names = data.results.map((r: { display_name: string }) => r.display_name);
-          setLocationSuggestions(names);
-          setShowLocationDropdown(names.length > 0);
-        }
+        const res = await fetch(`/api/geocode?action=search&q=${encodeURIComponent(query)}`);
+        const data: LocationSuggestion[] = await res.json();
+        setLocationSuggestions(data);
+        setShowLocationDropdown(data.length > 0);
       } catch {
         setLocationSuggestions([]);
+      } finally {
+        setLoadingLocation(false);
       }
     }, 300);
+  }
+
+  function selectLocationSuggestion(suggestion: LocationSuggestion) {
+    const addr = suggestion.address;
+    const parts = [
+      addr.city || addr.town || addr.village || suggestion.name,
+      addr.state,
+      addr.country,
+    ].filter(Boolean);
+    setLocationValue(parts.join(", ") || suggestion.display_name);
+    setLocationSuggestions([]);
+    setShowLocationDropdown(false);
+  }
+
+  function formatLocationLabel(suggestion: LocationSuggestion) {
+    const addr = suggestion.address;
+    const primary = addr.city || addr.town || addr.village || suggestion.name;
+    const secondary = [addr.state || addr.county, addr.country].filter(Boolean).join(", ");
+    return { primary, secondary };
+  }
+
+  function useMyLocation() {
+    if (!navigator.geolocation) return;
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        try {
+          const res = await fetch(`/api/geocode?action=reverse&lat=${latitude}&lon=${longitude}`);
+          const data = await res.json();
+          const addr = data.address;
+          const parts = [
+            addr.neighbourhood || addr.suburb || addr.hamlet,
+            addr.city || addr.town || addr.village,
+            addr.state,
+          ].filter(Boolean);
+          setLocationValue(parts.join(", ") || data.display_name || `${latitude}, ${longitude}`);
+        } catch {
+          setLocationValue(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+        }
+        setLocating(false);
+      },
+      () => setLocating(false)
+    );
   }
 
   useEffect(() => {
@@ -352,39 +411,81 @@ export default function ListingForm({
         <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
           Location
         </label>
-        <input
-          id="location"
-          name="location"
-          type="text"
-          required
-          value={locationValue}
-          onChange={(e) => {
-            setLocationValue(e.target.value);
-            fetchLocationSuggestions(e.target.value);
-          }}
-          onFocus={() => {
-            if (locationSuggestions.length > 0) setShowLocationDropdown(true);
-          }}
-          className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          placeholder="Start typing a city or neighborhood..."
-          autoComplete="off"
-        />
-        {showLocationDropdown && locationSuggestions.length > 0 && (
-          <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-            {locationSuggestions.map((s, i) => (
-              <li
-                key={i}
-                onClick={() => {
-                  setLocationValue(s);
-                  setShowLocationDropdown(false);
-                }}
-                className="px-3 py-2 text-sm text-gray-700 hover:bg-green-50 cursor-pointer"
-              >
-                {s}
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="flex gap-1.5 relative">
+          <div className="relative flex-1">
+            <input
+              id="location"
+              name="location"
+              type="text"
+              required
+              value={locationValue}
+              onChange={(e) => {
+                setLocationValue(e.target.value);
+                fetchLocationSuggestions(e.target.value);
+              }}
+              onFocus={() => {
+                if (locationSuggestions.length > 0) setShowLocationDropdown(true);
+              }}
+              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="Start typing a city or neighborhood..."
+              autoComplete="off"
+            />
+            {loadingLocation && (
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                <svg className="w-3.5 h-3.5 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              </div>
+            )}
+            {showLocationDropdown && locationSuggestions.length > 0 && (
+              <ul className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden max-h-48 overflow-y-auto">
+                {locationSuggestions.map((s) => {
+                  const { primary, secondary } = formatLocationLabel(s);
+                  return (
+                    <li key={s.place_id}>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          selectLocationSuggestion(s);
+                        }}
+                        className="w-full text-left px-3 py-2.5 hover:bg-green-50 transition-colors flex items-start gap-2 border-b border-gray-50 last:border-0"
+                      >
+                        <svg className="w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                        </svg>
+                        <div className="min-w-0">
+                          <p className="text-sm text-gray-900 truncate">{primary}</p>
+                          {secondary && <p className="text-xs text-gray-400 truncate">{secondary}</p>}
+                        </div>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={useMyLocation}
+            disabled={locating}
+            className="shrink-0 flex items-center gap-1.5 rounded border border-green-200 bg-green-50 px-3 py-2 text-xs font-medium text-green-700 hover:bg-green-100 hover:border-green-300 transition-colors disabled:opacity-50"
+          >
+            {locating ? (
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+              </svg>
+            )}
+            {locating ? "Locating..." : "Near me"}
+          </button>
+        </div>
       </div>
 
       <div>
