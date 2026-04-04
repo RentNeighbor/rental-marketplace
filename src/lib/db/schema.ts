@@ -45,6 +45,9 @@ export const listings = pgTable("listings", {
   condition: text("condition", {
     enum: ["new", "like_new", "excellent", "good", "fair", "well_worn"],
   }),
+  pricingMode: text("pricing_mode", { enum: ["pre_fee", "post_fee"] })
+    .notNull()
+    .default("pre_fee"),
   viewCount: integer("view_count").notNull().default(0),
   status: text("status", { enum: ["active", "paused", "rented", "removed"] })
     .notNull()

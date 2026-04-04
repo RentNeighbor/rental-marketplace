@@ -12,6 +12,7 @@ interface RentalRequestFormProps {
   pricePerDay: number | null;
   pricePerWeek: number | null;
   securityDeposit: number | null;
+  pricingMode?: string;
   unavailableRanges?: DateRange[];
   initialStart?: string;
   initialEnd?: string;
@@ -27,6 +28,7 @@ export default function RentalRequestForm({
   pricePerDay,
   pricePerWeek,
   securityDeposit,
+  pricingMode = "pre_fee",
   unavailableRanges = [],
   initialStart,
   initialEnd,
@@ -56,10 +58,18 @@ export default function RentalRequestForm({
     );
     if (days > 0) {
       if (pricePerDay) {
-        pricePreview = `$${(pricePerDay * days).toFixed(2)} (${days} day${days !== 1 ? "s" : ""} x $${pricePerDay}/day)`;
+        const baseFee = pricePerDay * days;
+        const renterPays = pricingMode === "pre_fee"
+          ? Math.round(baseFee / 0.9 * 100) / 100
+          : baseFee;
+        pricePreview = `$${renterPays.toFixed(2)} (${days} day${days !== 1 ? "s" : ""})`;
       } else if (pricePerWeek) {
         const weeks = Math.ceil(days / 7);
-        pricePreview = `$${(pricePerWeek * weeks).toFixed(2)} (${weeks} week${weeks !== 1 ? "s" : ""} x $${pricePerWeek}/week)`;
+        const baseFee = pricePerWeek * weeks;
+        const renterPays = pricingMode === "pre_fee"
+          ? Math.round(baseFee / 0.9 * 100) / 100
+          : baseFee;
+        pricePreview = `$${renterPays.toFixed(2)} (${weeks} week${weeks !== 1 ? "s" : ""})`;
       }
     }
   }
@@ -167,20 +177,26 @@ export default function RentalRequestForm({
               const end = new Date(endDate);
               const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
               if (days <= 0) return null;
-              let rentalFee = 0;
+              let baseRentalFee = 0;
               if (pricePerDay) {
-                rentalFee = pricePerDay * days;
+                baseRentalFee = pricePerDay * days;
               } else if (pricePerWeek) {
-                rentalFee = pricePerWeek * Math.ceil(days / 7);
+                baseRentalFee = pricePerWeek * Math.ceil(days / 7);
               }
-              const platformFee = Math.round(rentalFee * 0.10 * 100) / 100;
-              const totalWithDeposit = rentalFee + (securityDeposit ?? 0);
+              // pre_fee: listed price = what owner receives, renter pays more
+              // post_fee: listed price = what renter pays, owner gets less
+              const renterPays = pricingMode === "pre_fee"
+                ? Math.round(baseRentalFee / 0.9 * 100) / 100
+                : baseRentalFee;
+              const platformFee = Math.round(renterPays * 0.10 * 100) / 100;
+              const ownerReceives = renterPays - platformFee;
+              const totalWithDeposit = renterPays + (securityDeposit ?? 0);
               return (
                 <>
                   <div className="text-xs text-gray-500 border-t border-gray-100 pt-1 mt-1 space-y-0.5">
-                    <p>Rental fee: ${rentalFee.toFixed(2)}</p>
+                    <p>You pay: ${renterPays.toFixed(2)}</p>
                     <p>Platform fee (10%): ${platformFee.toFixed(2)}</p>
-                    <p>Owner receives: ${(rentalFee - platformFee).toFixed(2)}</p>
+                    <p>Owner receives: ${ownerReceives.toFixed(2)}</p>
                   </div>
                   {securityDeposit ? (
                     <p className="text-xs text-amber-600">

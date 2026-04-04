@@ -1,0 +1,1 @@
+ALTER TABLE "listings" ADD COLUMN "pricing_mode" text DEFAULT 'pre_fee' NOT NULL;

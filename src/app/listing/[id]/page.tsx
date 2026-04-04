@@ -439,7 +439,11 @@ export default async function ListingPage({
           <p className="text-xl font-semibold text-green-700 mt-1">{price}</p>
           {listing.pricePerDay && (
             <p className="text-xs text-gray-400 mt-0.5">
-              You pay ${listing.pricePerDay.toFixed(2)}/day &middot; Owner receives ${(listing.pricePerDay * 0.9).toFixed(2)}/day
+              {listing.pricingMode === "pre_fee" ? (
+                <>Renter pays ${(listing.pricePerDay / 0.9).toFixed(2)}/day (incl. 10% fee) &middot; Owner receives ${listing.pricePerDay.toFixed(2)}/day</>
+              ) : (
+                <>Renter pays ${listing.pricePerDay.toFixed(2)}/day &middot; Owner receives ${(listing.pricePerDay * 0.9).toFixed(2)}/day (after 10% fee)</>
+              )}
             </p>
           )}
 
@@ -548,6 +552,7 @@ export default async function ListingPage({
                 pricePerDay={listing.pricePerDay}
                 pricePerWeek={listing.pricePerWeek}
                 securityDeposit={listing.securityDeposit}
+                pricingMode={listing.pricingMode}
                 identityVerified={identityVerified}
                 submitAction={initiateRentalCheckout}
               />

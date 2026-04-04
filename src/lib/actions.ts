@@ -67,6 +67,7 @@ export async function createListing(formData: FormData) {
     condition: formData.get("condition")
       ? parseEnum(formData.get("condition"), LISTING_CONDITIONS, "condition")
       : null,
+    pricingMode: formData.get("pricingMode") === "post_fee" ? "post_fee" : "pre_fee",
     status: "active",
   });
 
@@ -118,6 +119,7 @@ export async function updateListing(formData: FormData) {
       condition: formData.get("condition")
         ? parseEnum(formData.get("condition"), LISTING_CONDITIONS, "condition")
         : null,
+      pricingMode: formData.get("pricingMode") === "post_fee" ? "post_fee" : "pre_fee",
       status: parseEnum(formData.get("status"), ["active", "paused", "rented"] as const, "status"),
       updatedAt: new Date(),
     })
@@ -635,7 +637,12 @@ export async function initiateRentalCheckout(
   }
 
   const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-  const rentalFee = calculateRentalFee(days, listing.pricePerDay, listing.pricePerWeek);
+  const baseRentalFee = calculateRentalFee(days, listing.pricePerDay, listing.pricePerWeek);
+  // pre_fee: listed price is what owner wants to receive, so renter pays more to cover platform fee
+  // post_fee: listed price is what renter pays, platform fee comes out of owner earnings
+  const rentalFee = listing.pricingMode === "pre_fee"
+    ? Math.round(baseRentalFee / 0.9 * 100) / 100
+    : baseRentalFee;
   const depositAmount = listing.securityDeposit ?? 0;
   const totalPrice = rentalFee + depositAmount;
 

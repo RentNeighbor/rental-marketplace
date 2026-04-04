@@ -25,6 +25,7 @@ interface ListingFormProps {
     imageUrls?: string | null;
     condition?: string | null;
     status?: string;
+    pricingMode?: string;
   };
 }
 
@@ -269,6 +270,34 @@ export default function ListingForm({
           </div>
         </div>
       )}
+
+      <div className="mb-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Pricing mode
+        </label>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer">
+            <input
+              type="radio"
+              name="pricingMode"
+              value="pre_fee"
+              defaultChecked={defaultValues?.pricingMode !== "post_fee"}
+              className="accent-green-600"
+            />
+            Price is what I want to receive (renter pays more to cover 10% fee)
+          </label>
+          <label className="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer">
+            <input
+              type="radio"
+              name="pricingMode"
+              value="post_fee"
+              defaultChecked={defaultValues?.pricingMode === "post_fee"}
+              className="accent-green-600"
+            />
+            Price is what the renter pays (10% fee comes out of my earnings)
+          </label>
+        </div>
+      </div>
 
       <div className="grid grid-cols-3 gap-4">
         <div>

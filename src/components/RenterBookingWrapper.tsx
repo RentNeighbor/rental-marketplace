@@ -22,6 +22,7 @@ interface RenterBookingWrapperProps {
   pricePerDay: number | null;
   pricePerWeek: number | null;
   securityDeposit: number | null;
+  pricingMode?: string;
   identityVerified: boolean;
   submitAction: (formData: FormData) => Promise<{ checkoutUrl: string }>;
 }
@@ -34,6 +35,7 @@ export default function RenterBookingWrapper({
   pricePerDay,
   pricePerWeek,
   securityDeposit,
+  pricingMode,
   identityVerified,
   submitAction,
 }: RenterBookingWrapperProps) {
@@ -107,6 +109,7 @@ export default function RenterBookingWrapper({
         pricePerDay={pricePerDay}
         pricePerWeek={pricePerWeek}
         securityDeposit={securityDeposit}
+        pricingMode={pricingMode}
         unavailableRanges={unavailableRanges}
         initialStart={selStart || undefined}
         initialEnd={selEnd || undefined}
