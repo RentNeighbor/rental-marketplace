@@ -329,9 +329,9 @@ export async function submitDispute(formData: FormData) {
   revalidatePath(`/listing/${listingId}`);
 }
 
-export async function submitReview(formData: FormData) {
+export async function submitReview(formData: FormData): Promise<{ error?: string }> {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session?.user?.id) return { error: "You must be logged in to leave a review" };
 
   const listingId = formData.get("listingId") as string;
   const revieweeId = formData.get("revieweeId") as string;
@@ -340,11 +340,11 @@ export async function submitReview(formData: FormData) {
   const comment = (formData.get("comment") as string) || null;
 
   if (!listingId || !revieweeId) {
-    throw new Error("Missing required fields");
+    return { error: "Missing required fields" };
   }
 
   if (session.user.id === revieweeId) {
-    throw new Error("You cannot review yourself");
+    return { error: "You cannot review yourself" };
   }
 
   // Require email verification to leave reviews
@@ -353,7 +353,7 @@ export async function submitReview(formData: FormData) {
     columns: { emailVerifiedAt: true },
   });
   if (!reviewer?.emailVerifiedAt) {
-    throw new Error("You must verify your email before leaving a review");
+    return { error: "You must verify your email before leaving a review" };
   }
 
   // Require a completed rental on this listing to leave a review
@@ -368,7 +368,7 @@ export async function submitReview(formData: FormData) {
     ),
   });
   if (!completedRental) {
-    throw new Error("You can only review listings you have rented or rented out");
+    return { error: "You can only review items you've rented or rented out" };
   }
 
   // Check for existing review from this user on this listing
@@ -379,7 +379,7 @@ export async function submitReview(formData: FormData) {
     ),
   });
   if (existing) {
-    throw new Error("You have already reviewed this rental");
+    return { error: "You have already reviewed this rental" };
   }
 
   await db.insert(reviews).values({
@@ -402,6 +402,7 @@ export async function submitReview(formData: FormData) {
 
   revalidatePath(`/listing/${listingId}`);
   revalidatePath(`/user/${revieweeId}`);
+  return {};
 }
 
 export async function deleteReview(formData: FormData) {

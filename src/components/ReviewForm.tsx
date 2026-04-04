@@ -7,7 +7,7 @@ interface ReviewFormProps {
   revieweeId: string;
   revieweeName: string;
   role: "renter" | "owner";
-  submitAction: (formData: FormData) => Promise<void>;
+  submitAction: (formData: FormData) => Promise<{ error?: string }>;
 }
 
 export default function ReviewForm({
@@ -23,14 +23,13 @@ export default function ReviewForm({
   const [submitted, setSubmitted] = useState(false);
 
   async function formAction(_prevState: string | null, formData: FormData) {
-    try {
-      await submitAction(formData);
-      setSubmitted(true);
-      setShowForm(false);
-      return null;
-    } catch (e) {
-      return e instanceof Error ? e.message : "Something went wrong";
+    const result = await submitAction(formData);
+    if (result?.error) {
+      return result.error;
     }
+    setSubmitted(true);
+    setShowForm(false);
+    return null;
   }
 
   const [error, action, isPending] = useActionState(formAction, null);
