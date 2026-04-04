@@ -356,6 +356,21 @@ export async function submitReview(formData: FormData) {
     throw new Error("You must verify your email before leaving a review");
   }
 
+  // Require a completed rental on this listing to leave a review
+  const completedRental = await db.query.rentals.findFirst({
+    where: and(
+      eq(rentals.listingId, listingId),
+      or(
+        eq(rentals.renterId, session.user.id),
+        eq(rentals.ownerId, session.user.id)
+      ),
+      eq(rentals.status, "completed")
+    ),
+  });
+  if (!completedRental) {
+    throw new Error("You can only review listings you have rented or rented out");
+  }
+
   // Check for existing review from this user on this listing
   const existing = await db.query.reviews.findFirst({
     where: and(
