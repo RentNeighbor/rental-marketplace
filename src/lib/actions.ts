@@ -404,6 +404,24 @@ export async function submitReview(formData: FormData) {
   revalidatePath(`/user/${revieweeId}`);
 }
 
+export async function deleteReview(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const reviewId = formData.get("reviewId") as string;
+  if (!reviewId) throw new Error("Missing review ID");
+
+  const review = await db.query.reviews.findFirst({
+    where: and(eq(reviews.id, reviewId), eq(reviews.reviewerId, session.user.id)),
+  });
+  if (!review) throw new Error("Review not found or unauthorized");
+
+  await db.delete(reviews).where(eq(reviews.id, reviewId));
+
+  revalidatePath(`/listing/${review.listingId}`);
+  revalidatePath(`/user/${review.revieweeId}`);
+}
+
 export async function startConversation(formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");

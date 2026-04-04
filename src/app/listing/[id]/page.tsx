@@ -41,7 +41,7 @@ export async function generateMetadata({
     },
   };
 }
-import { deleteListing, submitRentalPhoto, reportListing, submitDispute, submitReview, startConversation, requestRental, initiateRentalCheckout, approveRental, declineRental, cancelRental, completeRental, placeBid, acceptBid, declineBid, withdrawBid, blockDates, unblockDates, requestRentalExtension, approveRentalExtension, declineRentalExtension } from "@/lib/actions";
+import { deleteListing, submitRentalPhoto, reportListing, submitDispute, submitReview, deleteReview, startConversation, requestRental, initiateRentalCheckout, approveRental, declineRental, cancelRental, completeRental, placeBid, acceptBid, declineBid, withdrawBid, blockDates, unblockDates, requestRentalExtension, approveRentalExtension, declineRentalExtension } from "@/lib/actions";
 import { getUnavailableDateRanges } from "@/lib/availability";
 import RentalPhotos from "@/components/RentalPhotos";
 import ReportButton from "@/components/ReportButton";
@@ -685,6 +685,17 @@ export default async function ListingPage({
                 </div>
                 {review.comment && (
                   <p className="text-sm text-gray-600">{review.comment}</p>
+                )}
+                {session?.user?.id === review.reviewerId && (
+                  <form action={deleteReview} className="mt-1">
+                    <input type="hidden" name="reviewId" value={review.id} />
+                    <button
+                      type="submit"
+                      className="text-xs text-red-500 hover:text-red-700 transition-colors"
+                    >
+                      Delete my review
+                    </button>
+                  </form>
                 )}
               </div>
             ))}
