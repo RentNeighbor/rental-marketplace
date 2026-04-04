@@ -58,8 +58,8 @@ export default async function RootLayout({
         <Navbar />
         {showVerificationBanner && <VerificationBanner />}
         <main>{children}</main>
-        <footer className="border-t border-gray-200 bg-white py-8 px-6">
-          <div className="mx-auto max-w-7xl flex items-center justify-end gap-4">
+        <footer className="border-t border-gray-200 bg-white py-6 md:py-8 px-4 md:px-6">
+          <div className="mx-auto max-w-7xl flex items-center justify-center md:justify-end gap-4">
             <div className="flex items-center gap-4">
               <Link href="/faq" className="text-xs text-gray-400 hover:text-gray-600">
                 FAQ

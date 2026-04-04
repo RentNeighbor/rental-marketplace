@@ -73,7 +73,7 @@ export default function ListingCard({
             </div>
           )}
         </div>
-        <div className="px-2.5 py-2">
+        <div className="px-2 py-1.5 md:px-2.5 md:py-2">
           <div className="flex items-start justify-between gap-1.5">
             <h3 className="font-medium text-gray-900 text-[13px] leading-snug truncate">
               {title}

@@ -131,9 +131,9 @@ export default function SearchBar() {
   return (
     <form
       onSubmit={handleSearch}
-      className="flex gap-3 items-end flex-wrap bg-white border border-gray-200 rounded-xl px-5 py-4 shadow-sm"
+      className="flex flex-col md:flex-row gap-3 md:items-end bg-white border border-gray-200 rounded-xl px-4 md:px-5 py-4 shadow-sm"
     >
-      <div className="flex-1 min-w-[180px]">
+      <div className="flex-1 min-w-0 md:min-w-[180px]">
         <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1.5">
           Search
         </label>
@@ -145,7 +145,7 @@ export default function SearchBar() {
           className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
         />
       </div>
-      <div className="flex-1 min-w-[180px]" ref={locationWrapperRef}>
+      <div className="flex-1 min-w-0 md:min-w-[180px]" ref={locationWrapperRef}>
         <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1.5">
           Location
         </label>
@@ -229,7 +229,7 @@ export default function SearchBar() {
       </div>
       <button
         type="submit"
-        className="rounded-md bg-green-600 px-6 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+        className="w-full md:w-auto rounded-md bg-green-600 px-6 py-2.5 md:py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
       >
         Search
       </button>

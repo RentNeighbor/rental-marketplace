@@ -4,6 +4,7 @@ import { eq, like, desc, asc, and, gte, lte, inArray, or, count, avg, sql } from
 import ListingCard from "@/components/ListingCard";
 import SearchBar from "@/components/SearchBar";
 import FilterPanel from "@/components/FilterPanel";
+import MobileFilterToggle from "@/components/MobileFilterToggle";
 import Pagination from "@/components/Pagination";
 import { searchListingsFts } from "@/lib/db/fts";
 import { geocode, haversineDistance } from "@/lib/geocode";
@@ -278,22 +279,25 @@ export default async function Home({
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-8">
+    <div className="mx-auto max-w-7xl px-4 md:px-6 py-5 md:py-8">
       {/* Header + Search */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">
+      <div className="mb-5 md:mb-8">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-0.5 md:mb-1">
           Rent anything from your neighbors
         </h1>
-        <p className="text-gray-400 text-sm mb-5">
+        <p className="text-gray-400 text-xs md:text-sm mb-4 md:mb-5">
           Tools, gear, electronics, and more &mdash; available nearby.
         </p>
         <SearchBar />
       </div>
 
+      {/* Mobile filter toggle */}
+      <MobileFilterToggle categories={allCategories} />
+
       {/* Main layout: sidebar + grid */}
       <div className="flex gap-8">
-        {/* Left filter panel */}
-        <aside className="shrink-0" style={{ width: "300px" }}>
+        {/* Left filter panel — desktop only */}
+        <aside className="hidden md:block shrink-0" style={{ width: "300px" }}>
           <div className="sticky top-6">
             <FilterPanel categories={allCategories} />
           </div>
@@ -302,7 +306,7 @@ export default async function Home({
         {/* Listings grid */}
         <div className="flex-1 min-w-0">
           {hasActiveFilters && (
-            <p className="text-sm text-gray-400 mb-4">
+            <p className="text-xs md:text-sm text-gray-400 mb-3 md:mb-4">
               {totalResults} result{totalResults !== 1 ? "s" : ""} found
               {searchCoords && effectiveRadius
                 ? ` within ${effectiveRadius} mi`
@@ -311,16 +315,16 @@ export default async function Home({
           )}
 
           {totalResults === 0 ? (
-            <div className="text-center py-20 text-gray-400">
-              <p className="text-lg">No listings found</p>
-              <p className="text-sm mt-1">
+            <div className="text-center py-16 md:py-20 text-gray-400">
+              <p className="text-base md:text-lg">No listings found</p>
+              <p className="text-xs md:text-sm mt-1">
                 {hasActiveFilters
                   ? "Try adjusting your filters or expanding the radius"
                   : "Be the first to post something!"}
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+            <div className="grid grid-cols-2 gap-3 md:gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {pagedResults.map((listing) => (
                 <ListingCard
                   key={listing.id}

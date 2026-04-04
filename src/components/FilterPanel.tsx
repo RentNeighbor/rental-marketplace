@@ -193,9 +193,9 @@ export default function FilterPanel({
     (radius !== "" && radius !== "50");
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-      {/* Header */}
-      <div className="px-5 py-3.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+    <div className="bg-white md:border md:border-gray-200 md:rounded-xl overflow-hidden">
+      {/* Header — desktop only */}
+      <div className="hidden md:flex px-5 py-3.5 bg-gray-50 border-b border-gray-200 items-center justify-between">
         <h2 className="font-semibold text-gray-800 text-sm">Filters</h2>
         {hasFilters && (
           <button
