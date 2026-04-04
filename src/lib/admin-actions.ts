@@ -194,15 +194,22 @@ export async function suspendUser(formData: FormData) {
     .set({ suspendedAt: new Date() })
     .where(eq(users.id, userId));
 
+  // Delist all active/paused listings for suspended user
+  await db
+    .update(listings)
+    .set({ status: "removed" })
+    .where(eq(listings.userId, userId));
+
   await createNotification({
     userId,
     type: "listing_reported",
     title: "Account suspended",
-    body: "Your account has been suspended for violating our policies. Contact support if you believe this is an error.",
+    body: "Your account has been suspended for violating our policies. All your listings have been removed. Contact support if you believe this is an error.",
   });
 
   revalidatePath("/admin");
   revalidatePath("/admin/users");
+  revalidatePath("/admin/listings");
 }
 
 export async function unsuspendUser(formData: FormData) {

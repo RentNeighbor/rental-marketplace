@@ -36,6 +36,8 @@ async function seed() {
     { name: "Home & Garden", slug: "home-garden" },
     { name: "Music & Audio", slug: "music-audio" },
     { name: "Photography", slug: "photography" },
+    { name: "Travel", slug: "travel" },
+    { name: "Kitchen", slug: "kitchen" },
     { name: "Other", slug: "other" },
   ];
 

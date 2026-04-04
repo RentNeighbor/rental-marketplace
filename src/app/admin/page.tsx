@@ -18,8 +18,11 @@ export default async function AdminOverview() {
     .select({ count: sql<number>`count(*)` })
     .from(disputes)
     .where(eq(disputes.status, "open"));
-  const [revenue] = await db
-    .select({ total: sql<number>`coalesce(sum(${rentals.totalPrice}), 0)` })
+  const [revenueAndRentals] = await db
+    .select({
+      total: sql<number>`coalesce(sum(${rentals.totalPrice}), 0)`,
+      completedCount: sql<number>`count(*)`,
+    })
     .from(rentals)
     .where(eq(rentals.status, "completed"));
 
@@ -62,12 +65,13 @@ export default async function AdminOverview() {
     { label: "Active Listings", value: activeListings.count },
     { label: "Pending Reports", value: pendingReports.count, alert: pendingReports.count > 0 },
     { label: "Open Disputes", value: openDisputes.count, alert: openDisputes.count > 0 },
-    { label: "Total Revenue", value: `$${revenue.total.toFixed(2)}` },
+    { label: "Rentals Completed", value: revenueAndRentals.completedCount },
+    { label: "Total Revenue", value: `$${revenueAndRentals.total.toFixed(2)}` },
   ];
 
   return (
     <div>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         {kpis.map((kpi) => (
           <div key={kpi.label} className="bg-white border border-gray-200 rounded-xl p-4">
             <p className="text-xs text-gray-400">{kpi.label}</p>

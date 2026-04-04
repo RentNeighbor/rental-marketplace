@@ -74,11 +74,28 @@ export default function TermsPage() {
           <p>
             Owners are responsible for the accuracy of their listings, including
             descriptions, photos, pricing, and availability. Owners must only
-            list items they legally own or have authority to rent. Items that are
-            illegal, stolen, hazardous, or prohibited by applicable law may not
-            be listed.
+            list items they legally own or have authority to rent.
           </p>
-          <p>
+          <p className="mt-2 font-medium">
+            The following items may not be listed on RentNeighbor:
+          </p>
+          <ul className="list-disc pl-5 space-y-1 mt-1">
+            <li>Weapons, firearms, ammunition, or explosives</li>
+            <li>Illegal drugs, drug paraphernalia, or controlled substances</li>
+            <li>Stolen, counterfeit, or recalled products</li>
+            <li>Hazardous materials (chemicals, flammables, radioactive materials)</li>
+            <li>Medical devices requiring a prescription or license</li>
+            <li>Vehicles without valid registration or insurance</li>
+            <li>Items that violate intellectual property rights</li>
+            <li>Adult or sexually explicit content</li>
+            <li>Living animals</li>
+            <li>Items prohibited by federal, state, or local law</li>
+          </ul>
+          <p className="mt-2">
+            Listings that violate these restrictions will be removed and may
+            result in account suspension.
+          </p>
+          <p className="mt-2">
             Renters agree to use rented items responsibly, return them on time
             and in the same condition as received (normal wear and tear
             excepted), and communicate promptly with Owners regarding any

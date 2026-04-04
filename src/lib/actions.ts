@@ -345,6 +345,15 @@ export async function submitReview(formData: FormData) {
     throw new Error("You cannot review yourself");
   }
 
+  // Require email verification to leave reviews
+  const reviewer = await db.query.users.findFirst({
+    where: eq(users.id, session.user.id),
+    columns: { emailVerifiedAt: true },
+  });
+  if (!reviewer?.emailVerifiedAt) {
+    throw new Error("You must verify your email before leaving a review");
+  }
+
   // Check for existing review from this user on this listing
   const existing = await db.query.reviews.findFirst({
     where: and(
