@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 import { reports, disputes, listings, users, listingViews, rentalPhotos, blockedDates, reviews, bids, conversations, messages, rentals, rentalExtensions } from "@/lib/db/schema";
 import { createNotification } from "@/lib/notifications";
-import { eq, inArray } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function reviewReport(formData: FormData) {
@@ -222,6 +222,13 @@ export async function unsuspendUser(formData: FormData) {
     .set({ suspendedAt: null })
     .where(eq(users.id, userId));
 
+  // Re-list all removed listings for unsuspended user
+  await db
+    .update(listings)
+    .set({ status: "active" })
+    .where(and(eq(listings.userId, userId), eq(listings.status, "removed")));
+
   revalidatePath("/admin");
   revalidatePath("/admin/users");
+  revalidatePath("/admin/listings");
 }
