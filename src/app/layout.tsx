@@ -12,7 +12,8 @@ const geistSans = Geist({
 });
 
 export const viewport: Viewport = {
-  width: 1280,
+  width: "device-width",
+  initialScale: 1,
 };
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://rentneighbors.com";
