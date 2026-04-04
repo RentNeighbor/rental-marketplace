@@ -368,10 +368,11 @@ export default function ListingForm({
             name="pricePerDay"
             type="number"
             step="0.01"
-            min="0"
+            min="5"
             defaultValue={defaultValues?.pricePerDay ?? ""}
             className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           />
+          <p className="text-xs text-gray-400 mt-1">Minimum $5/day</p>
         </div>
         <div>
           <label htmlFor="pricePerWeek" className="block text-sm font-medium text-gray-700 mb-1">

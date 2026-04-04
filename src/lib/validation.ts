@@ -29,6 +29,35 @@ export const LISTING_CONDITIONS = [
 
 export const REVIEW_ROLES = ["renter", "owner"] as const;
 
+export const MIN_DAILY_PRICE = 5;
+
+const OFF_PLATFORM_KEYWORDS = [
+  "venmo", "zelle", "cashapp", "cash app", "paypal", "cash tag",
+  "pay me directly", "pay outside", "off the app", "off platform",
+  "my number is", "text me at", "call me at", "hit me up at",
+  "wire transfer", "bitcoin", "btc", "crypto",
+];
+
+// Matches phone numbers like (555) 123-4567, 555-123-4567, 5551234567, +1 555 123 4567
+const PHONE_REGEX = /(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/;
+// Matches email addresses
+const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+
+export function checkMessageContent(body: string): string | null {
+  const lower = body.toLowerCase();
+  for (const keyword of OFF_PLATFORM_KEYWORDS) {
+    if (lower.includes(keyword)) {
+      return `Messages cannot contain references to off-platform payment methods ("${keyword}"). All transactions must go through RentNeighbors for your protection.`;
+    }
+  }
+  if (PHONE_REGEX.test(body)) {
+    return "Messages cannot contain phone numbers. Please keep all communication on the platform.";
+  }
+  if (EMAIL_REGEX.test(body)) {
+    return "Messages cannot contain email addresses. Please keep all communication on the platform.";
+  }
+  return null;
+}
 export const MAX_PRICE = 1_000_000;
 
 export function parsePositiveNumber(

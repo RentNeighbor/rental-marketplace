@@ -23,6 +23,8 @@ import {
   LISTING_CONDITIONS,
   REVIEW_ROLES,
   MAX_PRICE,
+  MIN_DAILY_PRICE,
+  checkMessageContent,
   calculateRentalFee,
   calculatePlatformSplit,
 } from "@/lib/validation";
@@ -48,12 +50,21 @@ export async function createListing(formData: FormData) {
   // Geocode the location
   const coords = await geocode(location);
 
+  const pricePerDay = parseNonNegativeNumberOrNull(formData.get("pricePerDay"), "Price per day", MAX_PRICE);
+  const pricePerWeek = parseNonNegativeNumberOrNull(formData.get("pricePerWeek"), "Price per week", MAX_PRICE);
+  if (!pricePerDay && !pricePerWeek) {
+    throw new Error("You must set at least a daily or weekly price");
+  }
+  if (pricePerDay !== null && pricePerDay < MIN_DAILY_PRICE) {
+    throw new Error(`Daily price must be at least $${MIN_DAILY_PRICE}`);
+  }
+
   await db.insert(listings).values({
     id,
     title: formData.get("title") as string,
     description: formData.get("description") as string,
-    pricePerDay: parseNonNegativeNumberOrNull(formData.get("pricePerDay"), "Price per day", MAX_PRICE),
-    pricePerWeek: parseNonNegativeNumberOrNull(formData.get("pricePerWeek"), "Price per week", MAX_PRICE),
+    pricePerDay,
+    pricePerWeek,
     securityDeposit: parseNonNegativeNumberOrNull(formData.get("securityDeposit"), "Security deposit", MAX_PRICE),
     location,
     latitude: coords?.lat ?? null,
@@ -100,13 +111,22 @@ export async function updateListing(formData: FormData) {
     longitude = coords?.lng ?? null;
   }
 
+  const updatedPricePerDay = parseNonNegativeNumberOrNull(formData.get("pricePerDay"), "Price per day", MAX_PRICE);
+  const updatedPricePerWeek = parseNonNegativeNumberOrNull(formData.get("pricePerWeek"), "Price per week", MAX_PRICE);
+  if (!updatedPricePerDay && !updatedPricePerWeek) {
+    throw new Error("You must set at least a daily or weekly price");
+  }
+  if (updatedPricePerDay !== null && updatedPricePerDay < MIN_DAILY_PRICE) {
+    throw new Error(`Daily price must be at least $${MIN_DAILY_PRICE}`);
+  }
+
   await db
     .update(listings)
     .set({
       title: formData.get("title") as string,
       description: formData.get("description") as string,
-      pricePerDay: parseNonNegativeNumberOrNull(formData.get("pricePerDay"), "Price per day", MAX_PRICE),
-      pricePerWeek: parseNonNegativeNumberOrNull(formData.get("pricePerWeek"), "Price per week", MAX_PRICE),
+      pricePerDay: updatedPricePerDay,
+      pricePerWeek: updatedPricePerWeek,
       securityDeposit: parseNonNegativeNumberOrNull(formData.get("securityDeposit"), "Security deposit", MAX_PRICE),
       location: newLocation,
       latitude,
@@ -434,6 +454,11 @@ export async function startConversation(formData: FormData) {
     throw new Error("Please enter a message");
   }
 
+  const messageWarning = checkMessageContent(message);
+  if (messageWarning) {
+    throw new Error(messageWarning);
+  }
+
   const listing = await db.query.listings.findFirst({
     where: eq(listings.id, listingId),
   });
@@ -495,6 +520,11 @@ export async function sendMessage(formData: FormData) {
 
   if (!conversationId || !body?.trim()) {
     throw new Error("Please enter a message");
+  }
+
+  const messageWarning = checkMessageContent(body);
+  if (messageWarning) {
+    throw new Error(messageWarning);
   }
 
   const conversation = await db.query.conversations.findFirst({
