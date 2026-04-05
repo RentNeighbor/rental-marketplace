@@ -14,6 +14,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
   }
 
+  const contentLength = Number(request.headers.get("content-length") || "0");
+  if (contentLength > 5_000) {
+    return NextResponse.json({ error: "Request too large" }, { status: 413 });
+  }
+
   const { email } = await request.json();
 
   if (!email) {

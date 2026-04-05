@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { sendEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
+import { sanitizeString, MAX_NAME, MAX_EMAIL } from "@/lib/validation";
 
 export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
@@ -14,14 +15,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
   }
 
-  const { name, email, password } = await request.json();
+  const contentLength = Number(request.headers.get("content-length") || "0");
+  if (contentLength > 10_000) {
+    return NextResponse.json({ error: "Request too large" }, { status: 413 });
+  }
 
-  if (!name || !email || !password) {
+  const { name: rawName, email: rawEmail, password } = await request.json();
+
+  if (!rawName || !rawEmail || !password) {
     return NextResponse.json(
       { error: "Name, email, and password are required" },
       { status: 400 }
     );
   }
+
+  const name = sanitizeString(rawName, "Name", MAX_NAME);
+  const email = sanitizeString(rawEmail, "Email", MAX_EMAIL);
 
   if (password.length < 8) {
     return NextResponse.json(

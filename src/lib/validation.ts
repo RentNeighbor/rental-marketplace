@@ -31,6 +31,59 @@ export const REVIEW_ROLES = ["renter", "owner"] as const;
 
 export const MIN_DAILY_PRICE = 5;
 
+// Max string lengths for user input
+export const MAX_TITLE = 150;
+export const MAX_DESCRIPTION = 5000;
+export const MAX_MESSAGE = 2000;
+export const MAX_COMMENT = 2000;
+export const MAX_LOCATION = 200;
+export const MAX_EMAIL = 254;
+export const MAX_NAME = 100;
+export const MAX_DETAILS = 2000;
+export const MAX_REASON = 500;
+export const MAX_PHONE = 20;
+export const MAX_JSON_BODY = 50_000; // 50KB for JSON payloads
+
+/** Trim, enforce max length, strip HTML tags, and reject empty strings */
+export function sanitizeString(
+  value: unknown,
+  fieldName: string,
+  maxLength: number,
+  { required = true }: { required?: boolean } = {}
+): string {
+  if (value === null || value === undefined || value === "") {
+    if (required) throw new Error(`${fieldName} is required`);
+    return "";
+  }
+  let str = String(value).trim();
+  // Strip HTML tags
+  str = str.replace(/<[^>]*>/g, "");
+  if (required && str.length === 0) {
+    throw new Error(`${fieldName} is required`);
+  }
+  if (str.length > maxLength) {
+    throw new Error(`${fieldName} must be ${maxLength} characters or less`);
+  }
+  return str;
+}
+
+/** Same as sanitizeString but returns null instead of empty string */
+export function sanitizeStringOrNull(
+  value: unknown,
+  fieldName: string,
+  maxLength: number
+): string | null {
+  if (value === null || value === undefined || value === "") return null;
+  return sanitizeString(value, fieldName, maxLength, { required: false }) || null;
+}
+
+/** Validate a JSON request body size */
+export function validatePayloadSize(body: string, maxBytes: number = MAX_JSON_BODY): void {
+  if (new TextEncoder().encode(body).length > maxBytes) {
+    throw new Error("Request payload too large");
+  }
+}
+
 const OFF_PLATFORM_KEYWORDS = [
   "venmo", "zelle", "cashapp", "cash app", "paypal", "cash tag",
   "pay me directly", "pay outside", "off the app", "off platform",

@@ -15,6 +15,11 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const contentLength = Number(request.headers.get("content-length") || "0");
+  if (contentLength > 5_000) {
+    return Response.json({ error: "Request too large" }, { status: 413 });
+  }
+
   const body = await request.json();
 
   if (body.all) {

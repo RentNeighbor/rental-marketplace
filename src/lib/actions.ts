@@ -17,6 +17,8 @@ import {
   parsePositiveNumber,
   parseIntegerInRange,
   parseEnum,
+  sanitizeString,
+  sanitizeStringOrNull,
   REPORT_REASONS,
   DISPUTE_REASONS,
   RENTAL_PHOTO_TYPES,
@@ -24,6 +26,15 @@ import {
   REVIEW_ROLES,
   MAX_PRICE,
   MIN_DAILY_PRICE,
+  MAX_TITLE,
+  MAX_DESCRIPTION,
+  MAX_MESSAGE,
+  MAX_COMMENT,
+  MAX_LOCATION,
+  MAX_EMAIL,
+  MAX_DETAILS,
+  MAX_REASON,
+  MAX_PHONE,
   checkMessageContent,
   calculateRentalFee,
   calculatePlatformSplit,
@@ -45,7 +56,10 @@ export async function createListing(formData: FormData) {
   await requireVerifiedUser(session.user.id);
 
   const id = uuidv4();
-  const location = formData.get("location") as string;
+  const title = sanitizeString(formData.get("title"), "Title", MAX_TITLE);
+  const description = sanitizeString(formData.get("description"), "Description", MAX_DESCRIPTION);
+  const location = sanitizeString(formData.get("location"), "Location", MAX_LOCATION);
+  const contactEmail = sanitizeString(formData.get("contactEmail"), "Contact email", MAX_EMAIL);
 
   // Geocode the location
   const coords = await geocode(location);
@@ -61,8 +75,8 @@ export async function createListing(formData: FormData) {
 
   await db.insert(listings).values({
     id,
-    title: formData.get("title") as string,
-    description: formData.get("description") as string,
+    title,
+    description,
     pricePerDay,
     pricePerWeek,
     securityDeposit: parseNonNegativeNumberOrNull(formData.get("securityDeposit"), "Security deposit", MAX_PRICE),
@@ -73,7 +87,7 @@ export async function createListing(formData: FormData) {
       ? Number(formData.get("categoryId"))
       : null,
     userId: session.user.id,
-    contactEmail: formData.get("contactEmail") as string,
+    contactEmail,
     imageUrls: (formData.get("imageUrls") as string) || null,
     condition: formData.get("condition")
       ? parseEnum(formData.get("condition"), LISTING_CONDITIONS, "condition")
@@ -100,7 +114,7 @@ export async function updateListing(formData: FormData) {
   });
   if (!listing) throw new Error("Not found or unauthorized");
 
-  const newLocation = formData.get("location") as string;
+  const newLocation = sanitizeString(formData.get("location"), "Location", MAX_LOCATION);
 
   // Re-geocode if location changed
   let latitude = listing.latitude;
@@ -120,11 +134,15 @@ export async function updateListing(formData: FormData) {
     throw new Error(`Daily price must be at least $${MIN_DAILY_PRICE}`);
   }
 
+  const updatedTitle = sanitizeString(formData.get("title"), "Title", MAX_TITLE);
+  const updatedDescription = sanitizeString(formData.get("description"), "Description", MAX_DESCRIPTION);
+  const updatedContactEmail = sanitizeString(formData.get("contactEmail"), "Contact email", MAX_EMAIL);
+
   await db
     .update(listings)
     .set({
-      title: formData.get("title") as string,
-      description: formData.get("description") as string,
+      title: updatedTitle,
+      description: updatedDescription,
       pricePerDay: updatedPricePerDay,
       pricePerWeek: updatedPricePerWeek,
       securityDeposit: parseNonNegativeNumberOrNull(formData.get("securityDeposit"), "Security deposit", MAX_PRICE),
@@ -134,7 +152,7 @@ export async function updateListing(formData: FormData) {
       categoryId: formData.get("categoryId")
         ? Number(formData.get("categoryId"))
         : null,
-      contactEmail: formData.get("contactEmail") as string,
+      contactEmail: updatedContactEmail,
       imageUrls: (formData.get("imageUrls") as string) || null,
       condition: formData.get("condition")
         ? parseEnum(formData.get("condition"), LISTING_CONDITIONS, "condition")
@@ -207,7 +225,7 @@ export async function submitRentalPhoto(formData: FormData) {
   const listingId = formData.get("listingId") as string;
   const type = parseEnum(formData.get("type"), RENTAL_PHOTO_TYPES, "type");
   const photoUrl = formData.get("photoUrl") as string;
-  const notes = (formData.get("notes") as string) || null;
+  const notes = sanitizeStringOrNull(formData.get("notes"), "Notes", MAX_COMMENT);
 
   if (!listingId || !photoUrl) {
     throw new Error("Missing required fields");
@@ -249,7 +267,7 @@ export async function reportListing(formData: FormData) {
 
   const listingId = formData.get("listingId") as string;
   const reason = formData.get("reason") as string;
-  const details = (formData.get("details") as string) || null;
+  const details = sanitizeStringOrNull(formData.get("details"), "Details", MAX_DETAILS);
 
   if (!listingId || !reason) {
     throw new Error("Missing required fields");
@@ -302,7 +320,7 @@ export async function submitDispute(formData: FormData) {
 
   const listingId = formData.get("listingId") as string;
   const reason = formData.get("reason") as string;
-  const details = (formData.get("details") as string) || null;
+  const details = sanitizeStringOrNull(formData.get("details"), "Details", MAX_DETAILS);
 
   if (!listingId || !reason) {
     throw new Error("Missing required fields");
@@ -357,7 +375,7 @@ export async function submitReview(formData: FormData): Promise<{ error?: string
   const revieweeId = formData.get("revieweeId") as string;
   const role = parseEnum(formData.get("role"), REVIEW_ROLES, "role");
   const rating = parseIntegerInRange(formData.get("rating"), 1, 5, "Rating");
-  const comment = (formData.get("comment") as string) || null;
+  const comment = sanitizeStringOrNull(formData.get("comment"), "Comment", MAX_COMMENT);
 
   if (!listingId || !revieweeId) {
     return { error: "Missing required fields" };
@@ -448,10 +466,10 @@ export async function startConversation(formData: FormData) {
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   const listingId = formData.get("listingId") as string;
-  const message = formData.get("message") as string;
+  const message = sanitizeString(formData.get("message"), "Message", MAX_MESSAGE);
 
-  if (!listingId || !message?.trim()) {
-    throw new Error("Please enter a message");
+  if (!listingId) {
+    throw new Error("Missing listing");
   }
 
   const messageWarning = checkMessageContent(message);
@@ -516,10 +534,10 @@ export async function sendMessage(formData: FormData) {
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   const conversationId = formData.get("conversationId") as string;
-  const body = formData.get("body") as string;
+  const body = sanitizeString(formData.get("body"), "Message", MAX_MESSAGE);
 
-  if (!conversationId || !body?.trim()) {
-    throw new Error("Please enter a message");
+  if (!conversationId) {
+    throw new Error("Missing conversation");
   }
 
   const messageWarning = checkMessageContent(body);
@@ -831,7 +849,7 @@ export async function declineRental(formData: FormData) {
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   const rentalId = formData.get("rentalId") as string;
-  const notes = (formData.get("notes") as string) || null;
+  const notes = sanitizeStringOrNull(formData.get("notes"), "Notes", MAX_COMMENT);
 
   const rental = await db.query.rentals.findFirst({
     where: eq(rentals.id, rentalId),
@@ -1022,7 +1040,7 @@ export async function placeBid(formData: FormData) {
   const amount = parsePositiveNumber(formData.get("amount"), "Bid amount", MAX_PRICE);
   const startDateStr = formData.get("startDate") as string;
   const endDateStr = formData.get("endDate") as string;
-  const message = (formData.get("message") as string) || null;
+  const bidMessage = sanitizeStringOrNull(formData.get("message"), "Message", MAX_MESSAGE);
 
   if (!listingId || !startDateStr || !endDateStr) {
     throw new Error("Please fill in all required fields");
@@ -1088,7 +1106,7 @@ export async function placeBid(formData: FormData) {
     amount,
     startDate,
     endDate,
-    message,
+    message: bidMessage,
   });
 
   await createNotification({
@@ -1269,7 +1287,7 @@ export async function updateNotificationPreferences(formData: FormData) {
 
   const emailEnabled = formData.get("emailEnabled") === "on";
   const smsEnabled = formData.get("smsEnabled") === "on";
-  const phoneNumber = (formData.get("phoneNumber") as string)?.trim() || null;
+  const phoneNumber = sanitizeStringOrNull(formData.get("phoneNumber"), "Phone number", MAX_PHONE);
 
   if (smsEnabled && !phoneNumber) {
     throw new Error("Phone number is required when SMS notifications are enabled");
@@ -1308,7 +1326,7 @@ export async function requestRentalExtension(formData: FormData) {
 
   const rentalId = formData.get("rentalId") as string;
   const newEndDateStr = formData.get("newEndDate") as string;
-  const message = (formData.get("message") as string) || null;
+  const message = sanitizeStringOrNull(formData.get("message"), "Message", MAX_MESSAGE);
 
   const rental = await db.query.rentals.findFirst({ where: eq(rentals.id, rentalId) });
   if (!rental) throw new Error("Rental not found");
@@ -1439,7 +1457,7 @@ export async function blockDates(formData: FormData) {
   const listingId = formData.get("listingId") as string;
   const startDateStr = formData.get("startDate") as string;
   const endDateStr = formData.get("endDate") as string;
-  const reason = (formData.get("reason") as string)?.trim() || null;
+  const reason = sanitizeStringOrNull(formData.get("reason"), "Reason", MAX_REASON);
 
   if (!listingId || !startDateStr || !endDateStr) {
     throw new Error("Please select start and end dates");
