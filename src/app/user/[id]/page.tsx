@@ -110,19 +110,31 @@ export default async function UserProfilePage({
   ).length;
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
+    <div className="mx-auto max-w-6xl px-4 md:px-6 py-6 md:py-8">
       {/* Profile header */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-        <div className="flex items-start gap-5">
-          {/* Avatar */}
-          <div className="shrink-0 w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-            <span className="text-2xl font-bold text-green-700">
-              {user.name.charAt(0).toUpperCase()}
-            </span>
+      <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 mb-6">
+        <div className="flex flex-col md:flex-row md:items-start gap-4 md:gap-5">
+          {/* Avatar + name row on mobile */}
+          <div className="flex items-center gap-3 md:gap-5">
+            <div className="shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-full bg-green-100 flex items-center justify-center">
+              <span className="text-xl md:text-2xl font-bold text-green-700">
+                {user.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="md:hidden min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-bold text-gray-900 truncate">{user.name}</h1>
+                {isOwnProfile && (
+                  <span className="shrink-0 text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium">
+                    You
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3">
               <h1 className="text-xl font-bold text-gray-900">{user.name}</h1>
               {isOwnProfile && (
                 <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium">
@@ -131,7 +143,7 @@ export default async function UserProfilePage({
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 md:mt-2 text-sm text-gray-500">
               {user.location && (
                 <span className="flex items-center gap-1">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +171,7 @@ export default async function UserProfilePage({
           {isOwnProfile && (
             <Link
               href="/post"
-              className="shrink-0 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+              className="shrink-0 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors text-center md:text-left"
             >
               Post New
             </Link>
@@ -232,8 +244,8 @@ export default async function UserProfilePage({
                 key={review.id}
                 className="bg-white border border-gray-200 rounded-xl p-4"
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <svg
@@ -293,7 +305,7 @@ export default async function UserProfilePage({
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5">
           {userListings.map((listing) => (
             <ListingCard
               key={listing.id}
