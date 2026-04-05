@@ -1,11 +1,13 @@
 import { auth } from "@/lib/auth";
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function getAdminEmails(): string[] {
   const raw = process.env.ADMIN_EMAILS ?? "";
   return raw
     .split(",")
     .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
+    .filter((e) => Boolean(e) && EMAIL_RE.test(e));
 }
 
 export function isAdmin(session: { user?: { email?: string | null } } | null): boolean {
