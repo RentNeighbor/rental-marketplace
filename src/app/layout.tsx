@@ -66,7 +66,10 @@ export default async function RootLayout({
                 FAQ
               </Link>
               <Link href="/terms" className="text-xs text-gray-400 hover:text-gray-600">
-                Terms &amp; Privacy
+                Terms
+              </Link>
+              <Link href="/privacy" className="text-xs text-gray-400 hover:text-gray-600">
+                Data Privacy
               </Link>
               <p className="text-xs text-gray-400 whitespace-nowrap">
                 RentNeighbors &copy; {new Date().getFullYear()}
