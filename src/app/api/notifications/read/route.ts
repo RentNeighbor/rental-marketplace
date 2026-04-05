@@ -2,8 +2,14 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { notifications } from "@/lib/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
+import { rateLimit, getIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  const { success } = rateLimit(`notif-read:${getIp(request)}`, { limit: 30, windowMs: 60 * 1000 });
+  if (!success) {
+    return Response.json({ error: "Too many requests. Try again later." }, { status: 429 });
+  }
+
   const session = await auth();
   if (!session?.user?.id) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });

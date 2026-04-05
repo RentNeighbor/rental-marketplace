@@ -3,6 +3,7 @@ import { writeFile } from "fs/promises";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { rateLimit, getIp } from "@/lib/rate-limit";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -89,6 +90,11 @@ async function uploadToLocal(
 }
 
 export async function POST(request: Request) {
+  const { success } = rateLimit(`upload:${getIp(request)}`, { limit: 20, windowMs: 15 * 60 * 1000 });
+  if (!success) {
+    return Response.json({ error: "Too many requests. Try again later." }, { status: 429 });
+  }
+
   const session = await auth();
   if (!session?.user?.id) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });

@@ -1,3 +1,7 @@
+export function getIp(request: Request): string {
+  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+}
+
 const rateMap = new Map<string, { count: number; resetAt: number }>();
 
 // Clean up expired entries periodically

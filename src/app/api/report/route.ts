@@ -3,8 +3,14 @@ import { db } from "@/lib/db";
 import { listings, reports } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
+import { rateLimit, getIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  const { success } = rateLimit(`report:${getIp(request)}`, { limit: 10, windowMs: 15 * 60 * 1000 });
+  if (!success) {
+    return Response.json({ error: "Too many requests. Try again later." }, { status: 429 });
+  }
+
   const session = await auth();
   if (!session?.user?.id) {
     return Response.json({ error: "Please log in to report a listing" }, { status: 401 });

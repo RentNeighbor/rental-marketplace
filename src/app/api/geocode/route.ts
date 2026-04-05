@@ -1,8 +1,14 @@
 import { NextRequest } from "next/server";
+import { rateLimit, getIp } from "@/lib/rate-limit";
 
 const NOMINATIM_BASE = "https://nominatim.openstreetmap.org";
 
 export async function GET(request: NextRequest) {
+  const { success } = rateLimit(`geocode:${getIp(request)}`, { limit: 30, windowMs: 60 * 1000 });
+  if (!success) {
+    return Response.json({ error: "Too many requests. Try again later." }, { status: 429 });
+  }
+
   const { searchParams } = new URL(request.url);
   const action = searchParams.get("action"); // "search" or "reverse"
 

@@ -3,6 +3,7 @@ import { listings } from "@/lib/db/schema";
 import { eq, and, isNotNull } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { geocode, haversineDistance } from "@/lib/geocode";
+import { rateLimit, getIp } from "@/lib/rate-limit";
 
 const CONDITION_TIERS: Record<string, number> = {
   new: 5,
@@ -14,6 +15,11 @@ const CONDITION_TIERS: Record<string, number> = {
 };
 
 export async function GET(request: NextRequest) {
+  const { success } = rateLimit(`pricing:${getIp(request)}`, { limit: 30, windowMs: 60 * 1000 });
+  if (!success) {
+    return NextResponse.json({ error: "Too many requests. Try again later." }, { status: 429 });
+  }
+
   const { searchParams } = request.nextUrl;
   const categoryId = searchParams.get("categoryId");
   const condition = searchParams.get("condition");
